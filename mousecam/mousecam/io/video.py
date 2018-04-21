@@ -1,5 +1,21 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+# Author: Arne F. Meyer <arne.f.meyer@gmail.com>
+# License: GPLv3
 
-def get_video_files(path, extensions=['.mp4', '.h264']):
+from __future__ import print_function
+
+import os
+import os.path as op
+import pickle
+import numpy as np
+
+from ..util.opencv import cv2
+from ..util.roi import select_ROI_and_mask
+
+
+def get_video_files(path, extensions=['.mp4']):
 
     video_files = []
 
@@ -22,7 +38,6 @@ def get_video_files(path, extensions=['.mp4', '.h264']):
 def get_first_frame(file_path, grayscale=True):
 
     import imageio
-    import cv2
 
     with imageio.get_reader(file_path, 'ffmpeg') as reader:
 
@@ -34,8 +49,15 @@ def get_first_frame(file_path, grayscale=True):
     return frame
 
 
-def dump_video_to_memmap_file(file_path, output=None, overwrite=False,
-                              bbox=None, max_num_frames=-1):
+def dump_video_to_memmap_file(file_path,
+                              output=None,
+                              overwrite=False,
+                              bbox=None,
+                              max_num_frames=-1,
+                              timestamps=None):
+
+    import tqdm
+    import imageio
 
     # memmap file path
     if output is None:
@@ -50,29 +72,29 @@ def dump_video_to_memmap_file(file_path, output=None, overwrite=False,
 
         # get parameters
         rec_path, file_name = op.split(file_path)
-        pattern = op.splitext(file_name)[0]
-        params = rpicam.load_video_parameters(rec_path, pattern=pattern)
 
-        if params['timestamps'] is None:
-            # old database format
-            params['timestamps'] = load_old_camera_timestamps(file_path)
-
-        # open reader
+        # open reader and get video parameters
         reader = imageio.get_reader(file_path, 'ffmpeg')
+        meta = reader.get_meta_data()
+        n_frames = meta['nframes']
+        w, h = meta['size']
+
+        if max_num_frames > 0:
+            n_frames = min(max_num_frames, n_frames)
+
+        if timestamps is None:
+            timestamps = np.arange(n_frames)
+        else:
+            timestamps = timestamps[:n_frames]
 
         # process frames
         fp = None
         size = None
         mask = None
 
-        if max_num_frames > 0:
-            n_frames = max_num_frames
-        else:
-            n_frames = params['timestamps'].shape[0]
-
         for i in tqdm.trange(n_frames):
 
-            frame = cv2.cvtColor(reader.get_data(i), cv.CV_RGB2GRAY)
+            frame = cv2.cvtColor(reader.get_data(i), cv2.CV_RGB2GRAY)
 
             if i == 0:
 
@@ -82,7 +104,7 @@ def dump_video_to_memmap_file(file_path, output=None, overwrite=False,
                     if len(bbox) == 0:
                         bbox = [0, 0, frame.shape[1], frame.shape[0]]
 
-                print "bounding box:", bbox
+                print("bounding box:", bbox)
 
                 size = (n_frames, bbox[3], bbox[2])
                 fp = np.memmap(mmap_file, dtype='uint8', mode='w+', shape=size)
@@ -102,15 +124,15 @@ def dump_video_to_memmap_file(file_path, output=None, overwrite=False,
         dd = {'file': mmap_file,
               'bbox': bbox,
               'n_frames': n_frames,
-              'total_width': params['width'],
-              'total_height': params['height'],
+              'original_width': w,
+              'original_height': h,
               'width': bbox[2],
               'height': bbox[3],
               'w_offset': bbox[0],
               'h_offset': bbox[1],
               'dtype': 'uint8',
               'size': size,
-              'timestamps': params['timestamps'][:n_frames]}
+              'timestamps': timestamps}
 
         with open(param_file, 'w') as f:
             pickle.dump(dd, f)

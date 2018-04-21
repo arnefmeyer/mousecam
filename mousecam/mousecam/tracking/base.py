@@ -5,7 +5,7 @@
 # License: GPLv3
 
 """
-    base class for tracker classes
+    base class for object trackers and widgets
 """
 
 
@@ -18,6 +18,7 @@ import collections
 from functools import partial
 import itertools
 import time
+import copy
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -30,7 +31,6 @@ from ..util.pyqt import qwidgets as qw
 from ..util.system import makedirs_save
 from ..io.video import dump_video_to_memmap_file, get_first_frame
 from ..util.roi import select_ROI_and_mask
-from ..rpicam import io as rpicam
 
 
 # -----------------------------------------------------------------------------
@@ -112,23 +112,28 @@ class InvalidNumberOfObjectsException(Exception):
 
 class TrackerParameter():
 
-    def __init__(self, name, value, range=(1, 100)):
+    def __init__(self, name, value, range=(1, 100),
+                 description=None):
 
         self.name = name
         self.value = value
         self.range = range
+        self.description = description
 
     def copy_from(self, obj):
 
-        self.name = obj.name
-        self.value = obj.value
-        self.range = obj.range
+        # TODO: replace by simple copy of the whole object?
+        self.name = copy.copy(obj.name)
+        self.value = copy.copy(obj.value)
+        self.range = copy.copy(obj.range)
+        self.description = copy.copy(obj.description)
 
     def copy_to(self, obj):
 
-        obj.name = self.name
-        obj.value = self.value
-        obj.range = self.range
+        obj.name = copy.copy(self.name)
+        obj.value = copy.copy(self.value)
+        obj.range = copy.copy(self.range)
+        obj.description = copy.copy(self.description)
 
 
 class ParameterAutomation():
@@ -217,19 +222,37 @@ class AbstractTracker(object):
 
     __meta__ = abc.ABCMeta
 
-    def __init__(self, file_path, bbox=None, mask=None, max_num_frames=-1,
-                 overwrite=False, widget=None, oversample=None):
+    def __init__(self, file_path,
+                 bbox=None,
+                 mask=None,
+                 max_num_frames=-1,
+                 overwrite=False,
+                 widget=None,
+                 oversample=None,
+                 timestamps=None,
+                 max_num_objects=np.Inf):
+
+        if not op.exists(file_path):
+            raise OSError("File does not exists:", file_path)
+
+        if not op.isfile(file_path):
+            raise OSError("Given path is not a file:", file_path)
+
+        if not op.splitext(file_path)[1] == '.mp4':
+            raise TypeError("Currently only mp4 video files are supported")
 
         self.file_path = file_path
         self.max_num_frames = max_num_frames
         self.mask = mask
         self.widget = widget
         self.oversample = oversample
+        self.max_num_objects = max_num_objects
 
-        self.frame_params = rpicam.load_video_parameters(file_path)
-        self.mmap = dump_video_to_memmap_file(file_path, output=None,
+        self.mmap = dump_video_to_memmap_file(file_path,
+                                              output=None,
                                               bbox=bbox,
-                                              max_num_frames=max_num_frames)
+                                              max_num_frames=max_num_frames,
+                                              timestamps=timestamps)
         self.bbox = self.mmap['bbox']
 
         self._open_memmap_file()
@@ -329,26 +352,12 @@ class AbstractTracker(object):
     @property
     def timestamps(self):
 
-        if self.frame_params['timestamps'] is None:
-            if self.mmap['timestamps'] is None:
-                ts = None
-            else:
-                ts = self.mmap['timestamps'][:self.max_num_frames]
-        else:
-            ts = self.frame_params['timestamps'][:self.max_num_frames]
-
-        return ts
+        return self.mmap['timestamps']
 
     @property
     def n_frames(self):
 
-        if self.timestamps is not None:
-            if self.max_num_frames > 0:
-                return self.max_num_frames
-            else:
-                return len(self.timestamps)
-        else:
-            return 0
+        return self.mmap['n_frames']
 
     @property
     def boundary_contour(self):
@@ -598,9 +607,13 @@ class AbstractTrackerWidget(qw.QWidget):
     AUTOMATION_REC = 2
     AUTOMATION_PLAY = 3
 
-    def __init__(self, file_path, max_num_frames=-1,
-                 param_file=None, overwrite=False,
-                 bbox=None, output=None, oversample=None,
+    def __init__(self, file_path,
+                 max_num_frames=-1,
+                 param_file=None,
+                 overwrite=False,
+                 bbox=None,
+                 output=None,
+                 oversample=None,
                  suffix='_tracked_data'):
 
         qw.QWidget.__init__(self)
@@ -726,12 +739,17 @@ class AbstractTrackerWidget(qw.QWidget):
             slider.setMaximum(param.range[1])
             slider.setValue(param.value)
 
-            label = QtGui.QLabel(str(param.value))
-            slider.valueChanged.connect(partial(update_fitting_parameter,
-                                                param.name, label))
+            num = QtGui.QLabel(str(param.value))
 
-            grid.addWidget(QtGui.QLabel(param.name), i, 0)
-            grid.addWidget(label, i, 1)
+            slider.valueChanged.connect(partial(update_fitting_parameter,
+                                                param.name, num))
+
+            label = QtGui.QLabel(param.name)
+            if param.description is not None:
+                label.setToolTip(param.description)
+
+            grid.addWidget(label, i, 0)
+            grid.addWidget(num, i, 1)
             grid.addWidget(slider, i, 2)
 
             self.sliders[param.name] = slider
@@ -745,14 +763,18 @@ class AbstractTrackerWidget(qw.QWidget):
         hbox = qw.QHBoxLayout(self)
 
         button_proc = qw.QPushButton('Process frames', self)
+        button_proc.setToolTip("Process all frames using current parameters")
         button_proc.clicked.connect(self.process_all_frames)
         hbox.addWidget(button_proc)
 
         button_rem = QtGui.QPushButton('Remove mode', self)
+        button_rem.setToolTip("Manually remove objects")
         button_rem.setCheckable(True)
         button_add = QtGui.QPushButton('Add mode', self)
+        button_add.setToolTip("Manually add objects (not implemented)")
         button_add.setCheckable(True)
         button_bound = QtGui.QPushButton('Boundary mode', self)
+        button_bound.setToolTip("Set boundary for detecting objects")
         button_bound.setCheckable(True)
 
         button_rem.clicked.connect(partial(self.edit_mode_changed,
@@ -766,6 +788,8 @@ class AbstractTrackerWidget(qw.QWidget):
         hbox.addWidget(button_bound)
 
         button = QtGui.QPushButton('Jump to next', self)
+        button.setToolTip("Jump to next frame with mulitple objects in "
+                          "remove mode")
         button.clicked.connect(self.jump_to_next_editing_position)
         hbox.addWidget(button)
 
@@ -776,47 +800,44 @@ class AbstractTrackerWidget(qw.QWidget):
 
         vbox.addLayout(hbox)
 
-        # automation options
-        vbox.addWidget(qw.QLabel("<b>Parameter automation</b>", self))
-        hbox = qw.QHBoxLayout(self)
-
-        button_rec = qw.QPushButton('Record', self)
-        button_rec.setCheckable(True)
-        button_rec.clicked.connect(partial(self.automation_changed, 'rec',
-                                           button_rec))
-        hbox.addWidget(button_rec)
-
-        button_play = qw.QPushButton('Play', self)
-        button_play.setCheckable(True)
-        button_play.clicked.connect(partial(self.automation_changed, 'play',
-                                            button_play))
-        hbox.addWidget(button_play)
-
-        button_reset = qw.QPushButton('Reset', self)
-        button_reset.clicked.connect(partial(self.automation_changed, 'reset',
-                                             button_reset))
-        hbox.addWidget(button_reset)
-
-        combo = qw.QComboBox(self)
-        for p in self.tracker.parameters:
-            combo.addItem(p.name)
-        combo.currentIndexChanged.connect(self.comboChanged)
-        hbox.addWidget(combo)
-
-        vbox.addLayout(hbox)
-
-        self.buttons['params_rec'] = button_rec
-        self.buttons['params_play'] = button_play
-        self.buttons['params_reset'] = button_reset
+#        # automation options
+#        vbox.addWidget(qw.QLabel("<b>Parameter automation</b>", self))
+#        hbox = qw.QHBoxLayout(self)
+#
+#        button_rec = qw.QPushButton('Record', self)
+#        button_rec.setCheckable(True)
+#        button_rec.clicked.connect(partial(self.automation_changed, 'rec',
+#                                           button_rec))
+#        hbox.addWidget(button_rec)
+#
+#        button_play = qw.QPushButton('Play', self)
+#        button_play.setCheckable(True)
+#        button_play.clicked.connect(partial(self.automation_changed, 'play',
+#                                            button_play))
+#        hbox.addWidget(button_play)
+#
+#        button_reset = qw.QPushButton('Reset', self)
+#        button_reset.clicked.connect(partial(self.automation_changed, 'reset',
+#                                             button_reset))
+#        hbox.addWidget(button_reset)
+#
+#        combo = qw.QComboBox(self)
+#        for p in self.tracker.parameters:
+#            combo.addItem(p.name)
+#        combo.currentIndexChanged.connect(self.comboChanged)
+#        hbox.addWidget(combo)
+#
+#        vbox.addLayout(hbox)
+#
+#        self.buttons['params_rec'] = button_rec
+#        self.buttons['params_play'] = button_play
+#        self.buttons['params_reset'] = button_reset
 
         # parameter plot
         self.current_param_index = 0
         self.param_widget = ClickablePlotWidget()
-#        item = self.param_widget.getPlotItem()
         ts = self.tracker.timestamps
         p0 = self.tracker.parameters[self.current_param_index]
-#        item.plot(ts, p0.value*np.ones_like(ts))
-#        self.param_item = item
         self.param_widget.plot(ts, p0.value*np.ones_like(ts))
         vbox.addWidget(self.param_widget)
 
@@ -1003,13 +1024,7 @@ class AbstractTrackerWidget(qw.QWidget):
     def comboChanged(self, index):
 
         self.current_param_index = index
-
-#        item = self.param_item
         item = self.param_widget
-#        item.clear()
-#        item.plot(self.tracker.timestamps,
-#                  self.tracker_parameters[self.current_param_index, :])
-
         p = self.tracker_parameters[index]
         item.plot(self.tracker.timestamps,
                   p.get_values(self.tracker.timestamps))
@@ -1039,18 +1054,6 @@ class AbstractTrackerWidget(qw.QWidget):
         if self.mode == self.MODE_ADDING:
 
             print("Adding mode not implemented")
-#            index = self.current_index
-#
-#            center, size, angle = cv2.fitEllipse(points.astype(np.float32))
-#            self.ellipses[index] = [{'index': index,
-#                                     'center': center,
-#                                     'size': size,
-#                                     'angle': angle,
-#                                     'area': np.prod(size) * np.pi,
-#                                     'timestamp': self.tracker.timestamps[index],
-#                                     'mean_pix_val': -1}]
-#
-#            self.update_gui(index, update_slider=False)
 
         elif self.mode == self.MODE_SELECTING:
 
@@ -1058,8 +1061,6 @@ class AbstractTrackerWidget(qw.QWidget):
                                dtype=np.int32)
             contour[:-1, 0, :] = points.astype(np.int32)
             contour[-1, 0, :] = contour[0, 0, :]
-#            epsilon = 0.1 * cv2.arcLength(contour, True)
-#            approx = cv2.approxPolyDP(contour, epsilon, True)
             self.tracker.boundary_contour = contour
 
             self.buttons['bound'].setChecked(False)
@@ -1167,11 +1168,7 @@ class AbstractTrackerWidget(qw.QWidget):
         self.plot_item.clear()
         self.plot_item.plot(self.tracker.timestamps, cnt)
 
-#        item = self.param_item
-#        item.clear()
         item = self.param_widget
-#        item.plot(self.tracker.timestamps,
-#                  self.tracker_parameters[self.current_param_index, :])
         p = self.tracker_parameters[self.current_param_index]
         item.plot(self.tracker.timestamps,
                   p.get_values(self.tracker.timestamps))
@@ -1224,8 +1221,10 @@ class AbstractTrackerWidget(qw.QWidget):
                 ind = np.where(cnt < 1)[0]
 
             if len(ind) > 0:
-                ind = ind[ind > self.current_index]
-                if len(ind) > 0:
+                ind_after = ind[ind > self.current_index]
+                if len(ind_after) > 0:
+                    self.update_gui(ind_after[0])
+                else:
                     self.update_gui(ind[0])
 
     def start(self):
@@ -1249,7 +1248,6 @@ class AbstractTrackerWidget(qw.QWidget):
     def show_hist(self):
 
         cnt = np.asarray([len(obj) for obj in self.objects])
-#        ind = np.where(cnt > 0)[0]
         N = cnt.sum()
 
         if N > 0:
@@ -1275,8 +1273,9 @@ class AbstractTrackerWidget(qw.QWidget):
         cnt = np.asarray([len(obj) for obj in self.objects])
         ts = self.tracker.timestamps
 
-        if np.max(cnt) > 1:
-            raise ValueError('Multiple objects detected!')
+        if np.max(cnt) > self.tracker.max_num_objects:
+            raise ValueError('More than {} objects detected!'.format(
+                    self.max_num_objects))
 
         fig, axarr = plt.subplots(nrows=1, ncols=1, sharex=True)
 
@@ -1288,37 +1287,12 @@ class AbstractTrackerWidget(qw.QWidget):
         ax.plot(ts, values[:, 1], 'r-', label='y')
         ax.set_ylabel('Pixels')
 
-#        ax = axarr[1]
-#        ax.set_title('Pupil size')
-#        values = np.asarray([el[0]['size'] if len(el) > 0 else (-1, -1)
-#                             for el in self.ellipses])
-#        ax.plot(ts, values[:, 0], 'b-', label='x')
-#        ax.plot(ts, values[:, 1], 'r-', label='y')
-#        ax.set_ylabel('Pixels')
-#
-#        ax = axarr[2]
-#        ax.set_title('Pupil angle')
-#        values = np.asarray([el[0]['angle'] if len(el) > 0 else -1
-#                             for el in self.ellipses])
-#        ax.plot(ts, values, 'b-')
-#        ax.set_xlabel('Time (s)')
-#        ax.set_ylabel('Angle (Deg)')
-#
-#        ax = axarr[3]
-#        ax.set_title('Mean pixel intensity')
-#        values = np.asarray([el[0]['mean_pix_val'] if len(el) > 0 else -1
-#                             for el in self.ellipses])
-#        ax.plot(ts, values, 'b-')
-#        ax.set_xlabel('Time (s)')
-#        ax.set_ylabel('Pixel intensity')
-
         fig.tight_layout()
         plt.show()
 
     def save_results(self):
 
         self.stop()
-#        time.sleep(0.25)
 
         # also save bounding box
         bbox = self.tracker.bbox
@@ -1328,8 +1302,6 @@ class AbstractTrackerWidget(qw.QWidget):
                      'h': bbox[3]}
 
         # create file name from video file path (or use given output folder)
-#        output = self.output
-#        if output is None:
         output = op.split(self.file_path)[0]
         makedirs_save(output)
 
@@ -1340,7 +1312,7 @@ class AbstractTrackerWidget(qw.QWidget):
                                   self.objects,
                                   bbox=bbox_dict)
 
-        self.tracker.save_parameters(filebase + '_params.npz',
+        self.tracker.save_parameters(filebase + '_tracker_params.npz',
                                      automation=self.tracker_parameters,
                                      widget_parameters=self.widget_parameters)
 
@@ -1356,7 +1328,7 @@ class AbstractTrackerWidget(qw.QWidget):
             try:
                 objs = self.tracker.process_frame(index=i, draw=False)
                 self.objects[i] = objs
-            except:
+            except BaseException:
                 self.objects[i] = []
 
         cnt = np.asarray([len(obj) for obj in self.objects])

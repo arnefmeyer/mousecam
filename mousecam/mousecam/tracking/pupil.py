@@ -5,7 +5,7 @@
 # License: GPLv3
 
 """
-    tracker/widget for ellipse-based pupil tracking
+    simple ellipse-based pupil tracker
 """
 
 from __future__ import print_function
@@ -21,31 +21,45 @@ from base import InvalidNumberOfObjectsException
 from ..util.opencv import cv2, cv
 
 
-from ipdb import set_trace as db
-
-
 class PupilTracker(AbstractTracker):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, file_path, max_num_objects=1, **kwargs):
 
-        super(PupilTracker, self).__init__(*args, **kwargs)
+        super(PupilTracker, self).__init__(file_path,
+                                           max_num_objects=max_num_objects,
+                                           **kwargs)
 
     def init_parameters(self):
 
-        p = [TrackerParameter('threshold', 90, range=(0, 255)),
-             TrackerParameter('mean_pix_max', 90, range=(0, 255)),
-             TrackerParameter('diameter_min', 5, range=(1, 500)),
-             TrackerParameter('diameter_max', 500, range=(1, 500)),
-             TrackerParameter('blur1', 0, range=(0, 100)),
-             TrackerParameter('blob_scaling', 150, range=(0, 200)),
-             TrackerParameter('blob_minsize', 1, range=(0, 100)),
-             TrackerParameter('blob_maxsize', 10, range=(1, 100)),
-             TrackerParameter('inpaint_epsilon', 4, range=(1, 100)),
-             TrackerParameter('inpaint_kappa', 25, range=(1, 100)),
-             TrackerParameter('inpaint_sigma', 2, range=(1, 25)),
-             TrackerParameter('inpaint_rho', 3, range=(1, 25)),
-             TrackerParameter('inpaint_threshold', 0, range=(0, 100)),
-             TrackerParameter('blur2', 0, range=(0, 100))]
+        p = [TrackerParameter('threshold', 90, (0, 255),
+                              'Threshold for contour extraction'),
+             TrackerParameter('mean_pix_max', 90, (0, 255),
+                              'Max. mean pixel intensity of valid ellipses'),
+             TrackerParameter('diameter_min', 5, (1, 500),
+                              'Minimum ellipse diameter'),
+             TrackerParameter('diameter_max', 500, (1, 500),
+                              'Maximum ellipse diameter'),
+             TrackerParameter('blur1', 0, (0, 100),
+                              'Median blur (before blob detection)'),
+             TrackerParameter('blob_scaling', 150, (0, 200),
+                              'Scaling of blob size. Set to 0 to disable '
+                              'inpainting.'),
+             TrackerParameter('blob_minsize', 1, (0, 100),
+                              'Minimum blob size'),
+             TrackerParameter('blob_maxsize', 10, (1, 100),
+                              'Maximum blob size'),
+             TrackerParameter('inpaint_epsilon', 4, (1, 100),
+                              'see inpaint algorithm'),
+             TrackerParameter('inpaint_kappa', 25, (1, 100),
+                              'see inpaint algorithm'),
+             TrackerParameter('inpaint_sigma', 2, (1, 25),
+                              'see inpaint algorithm'),
+             TrackerParameter('inpaint_rho', 3, (1, 25),
+                              'see inpaint algorithm'),
+             TrackerParameter('inpaint_threshold', 0, (0, 100),
+                              'see inpaint algorithm'),
+             TrackerParameter('blur2', 0, (0, 100),
+                              'Median blur (after inpainting)')]
 
         return p
 
@@ -60,9 +74,11 @@ class PupilTracker(AbstractTracker):
     def save_objects(self, filepath, objects, bbox=None):
 
         cnt = [len(objs) for objs in objects]
-        if max(cnt) > 1:
+        if max(cnt) > self.max_num_objects:
             raise InvalidNumberOfObjectsException(
-                "Number of detected objects per frame must not be > 1")
+                "Number of detected objects per frame > {}. "
+                "Remove objects (e.g., using 'remove mode').".format(
+                        self.max_num_objects))
 
         N = len(objects)
         if N != len(self.timestamps):
@@ -72,7 +88,6 @@ class PupilTracker(AbstractTracker):
         size = np.NaN * np.ones((N, 2))
         angle = np.NaN * np.ones((N,))
         mean_pix_value = np.NaN * np.ones((N,))
-#        timestamp = np.NaN * np.ones((N,))
 
         for i, objs in enumerate(objects):
 
@@ -82,7 +97,6 @@ class PupilTracker(AbstractTracker):
                 size[i, :] = 2*np.array(obj.axes)
                 angle[i] = obj.angle
                 mean_pix_value[i] = obj.annotations['mean_pix_value']
-#                timestamp[i] = obj.annotations['timestamp']
 
         print("Saving pupil data to file:", filepath)
         np.savez(filepath,
@@ -158,7 +172,6 @@ class PupilTracker(AbstractTracker):
         if blur > 0:
             if blur % 2 == 0:
                 blur += 1
-#            frame_gray = cv2.GaussianBlur(frame_gray, (blur, blur), 0)
             frame_gray = cv2.medianBlur(frame_gray, blur)
 
         # blob detection
@@ -214,7 +227,6 @@ class PupilTracker(AbstractTracker):
         if blur > 0:
             if blur % 2 == 0:
                 blur += 1
-#            frame_inpaint = cv2.GaussianBlur(frame_inpaint, (blur, blur), 0)
             frame_inpaint = cv2.medianBlur(frame_inpaint, blur)
 
         # fit ellipses

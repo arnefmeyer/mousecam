@@ -12,7 +12,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def select_ROI_and_mask(frame):
+def select_ROI_and_mask(frame, verbose=True):
 
     from matplotlib.widgets import RectangleSelector
 
@@ -23,7 +23,11 @@ def select_ROI_and_mask(frame):
         print(' used button   : ', eclick.button)
 
     fig, (ax1, ax2) = plt.subplots(nrows=1, ncols=2)
+
+    ax1.set_title('original frame')
     ax1.imshow(frame, vmin=0, vmax=255, cmap='gray')
+
+    ax2.set_title("selected ROI")
     img2 = ax2.imshow(frame, vmin=0, vmax=255, cmap='gray')
 
     current_bbox = []
@@ -46,19 +50,19 @@ def select_ROI_and_mask(frame):
 
             current_ellipse[:] = [xc, yc, a, b]
 
-        I = np.copy(frame)
+        img = np.copy(frame)
 
         if len(current_ellipse) > 0:
             xc, yc, a, b = current_ellipse
-            for ii in range(I.shape[0]):
-                for jj in range(I.shape[1]):
+            for ii in range(img.shape[0]):
+                for jj in range(img.shape[1]):
                     if (ii - yc) ** 2 / b**2 + (jj - xc)**2 / a**2 > 1:
-                        I[ii, jj] = 255
+                        img[ii, jj] = 255
 
         if len(current_bbox) > 0:
-            I = I[y1:y2, x1:x2]
+            img = img[y1:y2, x1:x2]
 
-        img2.set_data(I)
+        img2.set_data(img)
 
     def toggle_selector(event):
 
@@ -81,6 +85,11 @@ def select_ROI_and_mask(frame):
     toggle_selector.ES.set_active(False)
     toggle_selector.RS.set_active(True)
     plt.connect('key_press_event', toggle_selector)
+
+    if verbose:
+        print("Select ROI by dragging a rectangle in the original frame "
+              "and press space or enter to continue")
+
     plt.show(block=True)
 
     mask = np.ones(frame.shape, dtype=np.bool)
