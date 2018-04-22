@@ -7,20 +7,21 @@
 """
     simple opencv and qt-based pupil tracking widget
 
-    NOTE: currently only mp4 files are supported. However, on linux h264 files
-    can easily be convert to mp4 using MP4Box:
+    NOTE: currently only mp4 files are supported. However, on Linux h264 files
+    (e.g., recorded using a Raspberry Pi camera) can easily be convert to mp4
+    using MP4Box (GPAC, https://gpac.wp.imt.fr/mp4box/):
+
         MP4Box -fps RATE -add H264_PATH MP4_FILE_NAME.mp4
-    where RATE is the frame rate of the h264 file, H264_PATH the location of
-    the file and MP4_FILE_NAME the output file.name.
+
+    RATE: the frame rate of the h264 file
+    H264_PATH: location of the file
+    MP4_FILE_NAME: output file.name.
 
 """
 
 from __future__ import print_function
 
 import click
-import sys
-
-# sys.path.append('/home/arne/research/code/my_repos/mousecam/mousecam')
 
 from mousecam.util.pyqt import qwidgets as qw
 from mousecam.io.video import get_video_files
@@ -49,7 +50,7 @@ def cli(path=None, frames=None, parameters=None, **kwargs):
                                param_file=parameters,
                                **kwargs)
         w.show()
-    sys.exit(app.exec_())
+        app.exec_()
 
 
 if __name__ == '__main__':

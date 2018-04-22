@@ -11,9 +11,6 @@
 import matplotlib.pyplot as plt
 
 
-from ipdb import set_trace as db
-
-
 def selectROI(frame, verbose=False, title=None, bbox=None):
 
     from matplotlib.widgets import RectangleSelector

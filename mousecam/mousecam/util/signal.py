@@ -5,7 +5,7 @@
 # License: GPLv3
 
 """
-    blubb
+    signal processing-related functions
 """
 
 from scipy import signal

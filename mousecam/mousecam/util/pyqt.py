@@ -11,6 +11,6 @@
 try:
     from PyQt4 import QtGui, QtCore
     qwidgets = QtGui
-except:
+except ImportError:
     from PyQt5 import QtGui, QtCore
     import PyQt5.QtWidgets as qwidgets

@@ -60,7 +60,6 @@ class BodyTracker(AbstractTracker):
         size = np.NaN * np.ones((N, 2))
         angle = np.NaN * np.ones((N,))
         mean_pix_value = np.NaN * np.ones((N,))
-#        timestamp = np.NaN * np.ones((N,))
 
         for i, objs in enumerate(objects):
 
@@ -70,7 +69,6 @@ class BodyTracker(AbstractTracker):
                 size[i, :] = 2*np.array(obj.axes)
                 angle[i] = obj.angle
                 mean_pix_value[i] = obj.annotations['mean_pix_value']
-#                timestamp[i] = obj.annotations['timestamp']
 
         print("Saving objects to file:", filepath)
         np.savez(filepath,
@@ -167,11 +165,6 @@ class BodyTracker(AbstractTracker):
             frame_blobs = cv2.drawKeypoints(frame, keypoints, np.asarray([]),
                                             (0, 0, 255),
                                             cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
-
-#        if len(keypoints) > 0:
-#            print keypoints
-#            from ipdb import set_trace as db
-#            db()
 
         if draw:
             return blobs, {'frame': frame,

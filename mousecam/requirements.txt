@@ -1,2 +1,10 @@
+numpy
+matplotlib
+scipy
 opencv
+pyqtgraph
+tqdm
+click
+imageio
+pyqt
 

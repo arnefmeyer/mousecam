@@ -15,7 +15,7 @@ try:
     from cv2 import cv
     CV_VERSION = 2
 
-except:
+except ImportError:
     cv = cv2
     cv.CV_RETR_LIST = cv.RETR_LIST
     cv.CV_THRESH_BINARY = cv2.THRESH_BINARY
