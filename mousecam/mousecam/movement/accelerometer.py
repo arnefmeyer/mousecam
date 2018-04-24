@@ -13,6 +13,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import quantities as pq
 
+from ..util.signal import filter_data
+
+
 # -----------------------------------------------------------------------------
 # accelerometer signal wrapper classes
 # -----------------------------------------------------------------------------
@@ -35,8 +38,11 @@ class AccelerometerSignal(object):
             Order of accelerometer channels
     """
 
-    def __init__(self, xyz, fs, vmin=None, vmax=None,
-                 units='g', g=GRAVITY,
+    def __init__(self, xyz, fs,
+                 vmin=None,
+                 vmax=None,
+                 units='g',
+                 g=GRAVITY,
                  channel_order=['x', 'y', 'z'],
                  reorder_channels=True,
                  invert_axes=False):
@@ -73,6 +79,26 @@ class AccelerometerSignal(object):
     def magnitude(self):
         """agnitude of accelerometer signal"""
         return np.sqrt(np.sum(self.xyz ** 2, axis=1))
+
+    def remove_slow_components(self, f_cutoff=2.):
+        """subtract an estimate of the gravity components"""
+        slow = filter_data(self.xyz, self.samplerate,
+                           method='filtfilt',
+                           adjust_delay=False,
+                           f_upper=f_cutoff,
+                           filt_type='lowpass',
+                           )
+        self.xyz -= (slow * self.xyz.units)
+
+    def remove_fast_components(self, f_cutoff=2.):
+        """subtract an estimate of the non-gravitational components"""
+        fast = filter_data(self.xyz, self.samplerate,
+                           method='filtfilt',
+                           adjust_delay=False,
+                           f_lower=f_cutoff,
+                           filt_type='highpass',
+                           )
+        self.xyz -= (fast * self.xyz.units)
 
     def get_channel(self, dim):
 
