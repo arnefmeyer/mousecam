@@ -11,7 +11,6 @@ import os
 import os.path as op
 import shutil
 import distutils.command.clean as dcc
-import subprocess
 
 DESCRIPTION = 'data extraction/analysis code for the mousecam'
 fpath = os.path.split(__file__)[0]
@@ -62,6 +61,7 @@ def configuration(parent_package='', top_path=None):
 
 
 def setup_package():
+
     metadata = dict(name='mousecam',
                     maintainer='Arne F. Meyer',
                     maintainer_email='arne.f.meyer@gmail.com',
@@ -79,7 +79,13 @@ def setup_package():
                                  'Operating System :: Unix',
                                  'Programming Language :: Python :: 2.7',
                                  ],
-                    cmdclass=cmdclass)
+                    cmdclass=cmdclass,
+                    packages=['mousecam',
+                              'mousecam.io',
+                              'mousecam.tracking',
+                              'mousecam.movement',
+                              'mousecam.util',
+                              'mousecam.motionregistration'],)
 
     if len(sys.argv) >= 2 and \
             ('--help' in sys.argv[1:] or sys.argv[1]
@@ -96,44 +102,43 @@ def setup_package():
 
         metadata['configuration'] = configuration
 
-    setup(**metadata)
+    setup(ext_modules=[get_inpaint_extension()],
+          **metadata)
 
 
 def build_extensions():
 
-    # Everything is relative to the path of this script
-    path = op.split(op.realpath(__file__))[0]
-    dirs = [op.join(path, 'mousecam', 'tracking', 'inpaintBCT')]
+    from numpy.distutils.misc_util import Configuration
+    from numpy.distutils.core import setup
 
-    # Make everything Windows compatible
-    is_posix = True
-    if 'win' in sys.platform:
-        is_posix = False
+    config = Configuration()
+    config.add_extension(get_inpaint_extension())
 
-    # Compile Cython code in subpackages
-    for d in dirs:
+    setup(**config.todict())
 
-        setup_file = op.join(d, 'setup.py')
-        print(setup_file)
 
-        if op.exists(setup_file):
+def get_inpaint_extension():
 
-            print("Building:", setup_file)
+    from distutils.extension import Extension
+    import numpy
 
-            if option.lower() == 'build_ext':
+    path = op.join(op.split(op.realpath(__file__))[0],
+                   'mousecam',
+                   'tracking',
+                   'inpaintBCT_extension')
 
-                if is_posix:
-                    # Just put cython extensions into package subdirectories
-                    subprocess.call(["/bin/bash", "-i", "-c",
-                                     "{} {} build_ext --inplace".format(
-                                             sys.executable, setup_file)])
-                else:
-                    raise NotImplementedError("compilation of extensions "
-                                              "under other than unix not "
-                                              "implemented yet")
-            else:
-                # Install the whole package somewhere
-                execfile(setup_file)
+    libraries = []
+    if os.name == 'posix':
+        libraries.append('m')
+
+    return Extension('mousecam.tracking.inpaintBCT',
+                     sources=[op.join(path, 'inpaintBCT.cpp'),
+                              op.join(path, 'heap.cpp'),
+                              op.join(path, 'inpainting_func.cpp')],
+                     libraries=libraries,
+                     include_dirs=[numpy.get_include()],
+                     extra_compile_args=['-O3'],
+                     language='c++')
 
 
 if __name__ == "__main__":

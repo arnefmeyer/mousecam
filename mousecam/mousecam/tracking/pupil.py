@@ -14,7 +14,7 @@ import numpy as np
 import itertools
 from scipy.misc import imresize
 
-from .inpaintBCT import inpaintBCT
+from . import inpaintBCT
 from .base import AbstractTracker, TrackedEllipse, TrackerParameter
 from .base import AbstractTrackerWidget
 from .base import InvalidNumberOfObjectsException
