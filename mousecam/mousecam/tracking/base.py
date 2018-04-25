@@ -591,7 +591,7 @@ class PlaybackHandler(QtCore.QObject):
 
 
 class AbstractTrackerWidget(qw.QWidget):
-    """Qt-based widget for single object tracking"""
+    """Simple Qt-based widget for object tracking"""
 
     __meta__ = abc.ABCMeta
 
@@ -614,6 +614,7 @@ class AbstractTrackerWidget(qw.QWidget):
                  bbox=None,
                  output=None,
                  oversample=None,
+                 frame_rate=10,
                  suffix='_tracked_data'):
 
         qw.QWidget.__init__(self)
@@ -624,7 +625,7 @@ class AbstractTrackerWidget(qw.QWidget):
         self.suffix = suffix
 
         self.current_index = 0
-        self.frame_rate = 10
+        self.frame_rate = frame_rate
         self.mode = self.MODE_PLAYING
         self.slider_is_moving = False
 
@@ -674,7 +675,7 @@ class AbstractTrackerWidget(qw.QWidget):
         self.buttons['stop'] = qw.QPushButton('Stop', self)
         self.buttons['stop'].clicked.connect(self.stop)
 
-        self.buttons['reset'] = qw.QPushButton('Reset', self)
+        self.buttons['reset'] = qw.QPushButton('Reset position', self)
         self.buttons['reset'].clicked.connect(self.reset)
 
         self.buttons['save'] = qw.QPushButton('Save', self)
@@ -800,7 +801,7 @@ class AbstractTrackerWidget(qw.QWidget):
 
         vbox.addLayout(hbox)
 
-#        # automation options
+#        # automation options (not fully working)
 #        vbox.addWidget(qw.QLabel("<b>Parameter automation</b>", self))
 #        hbox = qw.QHBoxLayout(self)
 #
@@ -1199,7 +1200,7 @@ class AbstractTrackerWidget(qw.QWidget):
         for obj in objects:
 
             if color is None:
-                c = cycler.next()
+                c = next(cycler)
             else:
                 c = color
 

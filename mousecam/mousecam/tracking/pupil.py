@@ -5,7 +5,7 @@
 # License: GPLv3
 
 """
-    simple ellipse-based pupil tracker
+    simple ellipse fitting-based pupil tracker
 """
 
 from __future__ import print_function
@@ -14,10 +14,10 @@ import numpy as np
 import itertools
 from scipy.misc import imresize
 
-import inpaintBCT
-from base import AbstractTracker, TrackedEllipse, TrackerParameter
-from base import AbstractTrackerWidget
-from base import InvalidNumberOfObjectsException
+from .inpaintBCT import inpaintBCT
+from .base import AbstractTracker, TrackedEllipse, TrackerParameter
+from .base import AbstractTrackerWidget
+from .base import InvalidNumberOfObjectsException
 from ..util.opencv import cv2, cv
 
 
@@ -41,9 +41,10 @@ class PupilTracker(AbstractTracker):
                               'Maximum ellipse diameter'),
              TrackerParameter('blur1', 0, (0, 100),
                               'Median blur (before blob detection)'),
+             TrackerParameter('use_inpainting', 0, (0, 1),
+                              'Set to 1 to enable inpainting (0 = disabled)'),
              TrackerParameter('blob_scaling', 150, (0, 200),
-                              'Scaling of blob size. Set to 0 to disable '
-                              'inpainting.'),
+                              'Scaling of blob size for inpainting'),
              TrackerParameter('blob_minsize', 1, (0, 100),
                               'Minimum blob size'),
              TrackerParameter('blob_maxsize', 10, (1, 100),
@@ -166,6 +167,7 @@ class PupilTracker(AbstractTracker):
                                   interp='cubic')
 
         frame = cv2.cvtColor(frame_gray, cv.CV_GRAY2RGB)
+        user_mask = self._user_mask
 
         # median blur before inpainting
         blur = self.get_parameter('blur1').value
@@ -174,48 +176,55 @@ class PupilTracker(AbstractTracker):
                 blur += 1
             frame_gray = cv2.medianBlur(frame_gray, blur)
 
-        # blob detection
-        size = max(frame.shape)
-        minsize = self.get_parameter('blob_minsize').value / 100. * size
-        maxsize = self.get_parameter('blob_maxsize').value / 100. * size
-        detector = self._create_blob_detector(minsize=minsize,
-                                              maxsize=maxsize)
-        keypoints = detector.detect(frame_gray)
+        frame_inpaint = None
+        inpaint_mask = None
+        blobs = None
+        if self.get_parameter('use_inpainting').value:
 
-        if draw:
-            blobs = cv2.drawKeypoints(frame, keypoints, np.asarray([]),
-                                      (0, 0, 255),
-                                      cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+            # blob detection
+            size = max(frame.shape)
+            minsize = self.get_parameter('blob_minsize').value / 100. * size
+            maxsize = self.get_parameter('blob_maxsize').value / 100. * size
+            detector = self._create_blob_detector(minsize=minsize,
+                                                  maxsize=maxsize)
+            keypoints = detector.detect(frame_gray)
 
-        scaling = self.get_parameter('blob_scaling').value / 100.
-        user_mask = self._user_mask
+            if draw:
+                blobs = cv2.drawKeypoints(
+                        frame,
+                        keypoints,
+                        np.asarray([]),
+                        (0, 0, 255),
+                        cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
 
-        inpaint_mask = np.zeros_like(frame_gray)
+            scaling = self.get_parameter('blob_scaling').value / 100.
 
-        if scaling > 0 and len(keypoints) > 0:
+            inpaint_mask = np.zeros_like(frame_gray)
 
-            for kp in keypoints:
-                cv2.circle(inpaint_mask, (int(kp.pt[0]), int(kp.pt[1])),
-                           int(scaling*kp.size),
-                           (255, 255, 255), -1)
+            if scaling > 0 and len(keypoints) > 0:
 
-            # inpaint (note that arrays have to be in fortran order)
-            eps = self.get_parameter('inpaint_epsilon').value
-            kappa = self.get_parameter('inpaint_kappa').value
-            sigma = self.get_parameter('inpaint_sigma').value
-            rho = self.get_parameter('inpaint_rho').value
-            thresh = self.get_parameter('inpaint_threshold').value
+                for kp in keypoints:
+                    cv2.circle(inpaint_mask, (int(kp.pt[0]), int(kp.pt[1])),
+                               int(scaling*kp.size),
+                               (255, 255, 255), -1)
 
-            frame_inpaint = inpaintBCT.inpaintBCT(
-                np.asfortranarray(frame.astype(np.float64)),
-                np.asfortranarray(inpaint_mask.astype(np.float64)),
-                eps, kappa, sigma, rho, thresh)
+                # inpaint (note that arrays have to be in fortran order)
+                eps = self.get_parameter('inpaint_epsilon').value
+                kappa = self.get_parameter('inpaint_kappa').value
+                sigma = self.get_parameter('inpaint_sigma').value
+                rho = self.get_parameter('inpaint_rho').value
+                thresh = self.get_parameter('inpaint_threshold').value
 
-            frame_inpaint = cv2.cvtColor(frame_inpaint.astype(np.uint8),
-                                         cv2.COLOR_RGB2GRAY)
-            frame_inpaint = np.ascontiguousarray(frame_inpaint)
+                frame_inpaint = inpaintBCT.inpaintBCT(
+                    np.asfortranarray(frame.astype(np.float64)),
+                    np.asfortranarray(inpaint_mask.astype(np.float64)),
+                    eps, kappa, sigma, rho, thresh)
 
-        else:
+                frame_inpaint = cv2.cvtColor(frame_inpaint.astype(np.uint8),
+                                             cv2.COLOR_RGB2GRAY)
+                frame_inpaint = np.ascontiguousarray(frame_inpaint)
+
+        if frame_inpaint is None:
             frame_inpaint = np.copy(frame_gray)
 
         # ellipse must be inside boundary (if given)
@@ -303,7 +312,7 @@ class PupilTracker(AbstractTracker):
                                          timestamp=self.timestamps[index])
                     if draw:
                         # draw ellipse and ellipse center
-                        color = cycler.next()
+                        color = next(cycler)
                         obj.draw(frame_ellipses, draw_center=True, color=color)
 
                     ellipses.append(obj)
@@ -321,9 +330,12 @@ class PupilTracker(AbstractTracker):
 
 class PupilTrackerWidget(AbstractTrackerWidget):
 
-    def __init__(self, file_path, suffix='_pupil_data', **kwargs):
+    def __init__(self, file_path, suffix='_pupil_data', frame_rate=1,
+                 **kwargs):
 
-        super(PupilTrackerWidget, self).__init__(file_path, suffix=suffix,
+        super(PupilTrackerWidget, self).__init__(file_path,
+                                                 suffix=suffix,
+                                                 frame_rate=frame_rate,
                                                  **kwargs)
 
     def create_tracker(self, file_path, **kwargs):

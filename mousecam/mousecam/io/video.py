@@ -61,12 +61,13 @@ def dump_video_to_memmap_file(file_path,
 
     # memmap file path
     if output is None:
-        mmap_file = op.splitext(file_path)[0] + '.memmap'
+        filebase = op.splitext(file_path)[0]
     else:
-        mmap_file = op.join(output,
-                            op.splitext(op.basename(file_path))[0] + '.memmap')
+        filebase = op.join(output,
+                           op.splitext(op.basename(file_path))[0])
 
-    param_file = mmap_file + '.params'
+    mmap_file = filebase + '_memmap.bin'
+    param_file = filebase + '_memmap_params.npy'
 
     if not op.exists(mmap_file) or overwrite:
 
@@ -121,6 +122,7 @@ def dump_video_to_memmap_file(file_path,
         # make sure to flush file
         del fp
 
+        # save parameters to numpy file
         dd = {'file': mmap_file,
               'bbox': bbox,
               'n_frames': n_frames,
@@ -134,12 +136,9 @@ def dump_video_to_memmap_file(file_path,
               'size': size,
               'timestamps': timestamps}
 
-        with open(param_file, 'w') as f:
-            pickle.dump(dd, f)
+        np.save(param_file, dd)
 
     else:
-
-        with open(param_file, 'r') as f:
-            dd = pickle.load(f)
+        dd = np.load(param_file).item()
 
     return dd
