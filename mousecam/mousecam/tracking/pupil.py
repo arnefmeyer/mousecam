@@ -250,9 +250,15 @@ class PupilTracker(AbstractTracker):
                                      cv2.THRESH_BINARY)
 
         # find contours
-        _, contours, hierarchy = cv2.findContours(mask,
-                                                  cv2.RETR_TREE,
-                                                  cv2.CHAIN_APPROX_NONE)
+        try:
+            _, contours, hierarchy = cv2.findContours(mask,
+                                                      cv2.RETR_TREE,
+                                                      cv2.CHAIN_APPROX_NONE)
+        except:
+            # opencv 2.4.x
+            contours, hierarchy = cv2.findContours(mask,
+                                                   cv2.RETR_TREE,
+                                                   cv2.CHAIN_APPROX_NONE)
 
         ellipses = []
 

@@ -8,10 +8,10 @@ from __future__ import print_function
 
 import os
 import os.path as op
-import pickle
 import numpy as np
 
 from ..util.opencv import cv2
+from ..util.opencv import cv
 from ..util.roi import select_ROI_and_mask
 
 
@@ -95,7 +95,7 @@ def dump_video_to_memmap_file(file_path,
 
         for i in tqdm.trange(n_frames):
 
-            frame = cv2.cvtColor(reader.get_data(i), cv2.CV_RGB2GRAY)
+            frame = cv2.cvtColor(reader.get_data(i), cv.CV_RGB2GRAY)
 
             if i == 0:
 
