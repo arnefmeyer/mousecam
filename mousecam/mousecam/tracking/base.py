@@ -429,8 +429,7 @@ class FrameLabel(QtGui.QLabel):
 
         if self.image is not None:
 
-            img = toQImage(self.image)
-            self.pixmap = QtGui.QPixmap.fromImage(img)
+            self.pixmap = QtGui.QPixmap.fromImage(toQImage(self.image))
 
             size = self.size()
             painter = QtGui.QPainter(self)
@@ -446,6 +445,9 @@ class FrameLabel(QtGui.QLabel):
                 painter.setPen(QtCore.Qt.red)
                 for p in self.points:
                     painter.drawPoint(p.x(), p.y())
+
+        else:
+            print("FrameLabel.paintEvent: image == None")
 
     def mousePressEvent(self, event):
 
@@ -473,6 +475,11 @@ class FrameLabel(QtGui.QLabel):
     def mouseReleaseEvent(self, event):
 
         if event.button() == QtCore.Qt.LeftButton:
+
+            if self.pixmap is None or self.scaled_pixmap is None:
+                print("pixmap or scaled pixmap == None. "
+                      "Probably some PyQt repaint-related error.")
+                return
 
             if self.select_rectangle:
 
