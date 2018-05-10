@@ -8,12 +8,14 @@
     functions/classes related to modeling of eye movements using accel. signals
 """
 
+from __future__ import print_function
+
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.base import BaseEstimator
 from sklearn import neural_network
 from sklearn import grid_search
-from sklearn import preprocessing
+from six import string_types
 
 from scipy import interpolate
 
@@ -223,7 +225,7 @@ class GAM(BaseEstimator):
             lin_model = linear_models.ARD(verbose=False)
             lin_model.fit(X, y)
 
-        elif isinstance(self.linear_model, (str, unicode)):
+        elif isinstance(self.linear_model, string_types):
 
             if self.linear_model.upper() == 'ARD':
                 lin_model = linear_models.ARD(verbose=False)
@@ -333,9 +335,6 @@ class MLP(neural_network.MLPRegressor):
         self.n_folds = n_folds
         self.n_jobs = n_jobs
         self.optimize_hyperparameters = optimize_hyperparameters
-#        self.normalize = normalize
-
-#        self.scaler = None
 
     def get_params(self, deep=False):
 
@@ -358,20 +357,13 @@ class MLP(neural_network.MLPRegressor):
             grid.fit(X, y)
 
             self.alpha = grid.best_params_['alpha']
-            print self.alpha, self.alpha_values[0], self.alpha_values[-1]
-#            super(MLP, self).fit(X, y)
+            print(self.alpha, self.alpha_values[0], self.alpha_values[-1])
             self.fit(X, y)
             self.optimize_hyperparameters = True
 
         else:
-#            if self.normalize:
-#                self.scaler = preprocessing.StandardScaler()
-#                X = 10 * self.scaler.fit_transform(X)
             super(MLP, self).fit(X, y)
 
     def predict(self, X, *args, **kwargs):
-
-#        if self.normalize and self.scaler is not None:
-#            X = 10 * self.scaler.transform(X)
 
         return super(MLP, self).predict(X, *args, **kwargs)
