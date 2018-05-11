@@ -19,6 +19,7 @@ from functools import partial
 import itertools
 import time
 import copy
+import traceback
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -431,23 +432,26 @@ class FrameLabel(QtGui.QLabel):
 
             self.pixmap = QtGui.QPixmap.fromImage(toQImage(self.image))
 
-            size = self.size()
-            painter = QtGui.QPainter(self)
-            point = QtCore.QPoint(0, 0)
-            trans_mode = QtCore.Qt.SmoothTransformation
-            pm = self.pixmap.scaled(size, QtCore.Qt.KeepAspectRatio,
-                                    transformMode=trans_mode)
+            try:
+                size = self.size()
+                painter = QtGui.QPainter(self)
+                point = QtCore.QPoint(0, 0)
+                trans_mode = QtCore.Qt.SmoothTransformation
+                pm = self.pixmap.scaled(size, QtCore.Qt.KeepAspectRatio,
+                                        transformMode=trans_mode)
 
-            painter.drawPixmap(point, pm)
-            self.scaled_pixmap = pm
+                painter.drawPixmap(point, pm)
+                self.scaled_pixmap = pm
 
-            if len(self.points) > 0:
-                painter.setPen(QtCore.Qt.red)
-                for p in self.points:
-                    painter.drawPoint(p.x(), p.y())
+                if len(self.points) > 0:
+                    painter.setPen(QtCore.Qt.red)
+                    for p in self.points:
+                        painter.drawPoint(p.x(), p.y())
 
-        else:
-            print("FrameLabel.paintEvent: image == None")
+            except BaseException:
+                # TODO: figure out why this causes problems on mac osx and
+                # not on linux-based systems
+                pass
 
     def mousePressEvent(self, event):
 
@@ -1316,13 +1320,18 @@ class AbstractTrackerWidget(qw.QWidget):
         filename = op.splitext(op.basename(self.file_path))[0]
         filebase = op.join(output, filename + self.suffix)
 
-        self.tracker.save_objects(filebase + '.npz',
-                                  self.objects,
-                                  bbox=bbox_dict)
+        try:
+            self.tracker.save_objects(filebase + '.npz',
+                                      self.objects,
+                                      bbox=bbox_dict)
 
-        self.tracker.save_parameters(filebase + '_tracker_params.npz',
-                                     automation=self.tracker_parameters,
-                                     widget_parameters=self.widget_parameters)
+            self.tracker.save_parameters(
+                    filebase + '_tracker_params.npz',
+                    automation=self.tracker_parameters,
+                    widget_parameters=self.widget_parameters)
+
+        except BaseException:
+            traceback.print_exc()
 
     def close_and_exit(self):
 
