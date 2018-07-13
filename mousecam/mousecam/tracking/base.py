@@ -378,8 +378,10 @@ class AbstractTracker(object):
 
                 w, h = self.mmap['width'], self.mmap['height']
 
-                w = w*self.oversample
-                h = h*self.oversample
+                if self.oversample is not None:
+                    w = w*self.oversample
+                    h = h*self.oversample
+
                 self._user_mask = np.zeros((h, w), dtype=np.uint8)
                 for i in range(w):
                     for j in range(h):

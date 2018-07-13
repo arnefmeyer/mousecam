@@ -12,9 +12,9 @@ from __future__ import print_function
 
 import numpy as np
 
-from base import AbstractTracker, TrackedEllipse, TrackerParameter
-from base import AbstractTrackerWidget
-from base import InvalidNumberOfObjectsException
+from .base import AbstractTracker, TrackedEllipse, TrackerParameter
+from .base import AbstractTrackerWidget
+from .base import InvalidNumberOfObjectsException
 from ..util.opencv import cv2, cv
 
 
@@ -153,13 +153,17 @@ class BodyTracker(AbstractTracker):
             mean_pix_val = frame_gray[mask > 0].mean()
 
             if mean_pix_val <= mean_pix_max:
-                if self._user_mask is None or self._user_mask[kp.pt[1],
-                                                              kp.pt[0]] != 0:
-                    blobs.append(TrackedEllipse(kp.pt,
-                                                (.5*kp.size, .5*kp.size),
-                                                kp.angle,
-                                                mean_pix_value=mean_pix_val,
-                                                timestamp=self.timestamps[index]))
+                try:
+                    if self._user_mask is None or self._user_mask[kp.pt[1],
+                                                                  kp.pt[0]] != 0:
+                        blobs.append(TrackedEllipse(kp.pt,
+                                                    (.5*kp.size, .5*kp.size),
+                                                    kp.angle,
+                                                    mean_pix_value=mean_pix_val,
+                                                    timestamp=self.timestamps[index]))
+                except:
+                    from ipdb import set_trace as db
+                    db()
 
         if draw:
             frame_blobs = cv2.drawKeypoints(frame, keypoints, np.asarray([]),
