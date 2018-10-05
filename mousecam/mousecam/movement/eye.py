@@ -12,12 +12,17 @@ from __future__ import print_function
 
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy import interpolate
+from six import string_types
 from sklearn.base import BaseEstimator
 from sklearn import neural_network
-from sklearn import grid_search
-from six import string_types
 
-from scipy import interpolate
+try:
+    # older sklearn versions (e.g., 0.16)
+    from sklearn.grid_search import GridSearchCV
+except ImportError:
+    # newer versions (e.g., 0.20)
+    from sklearn.model_selection import GridSearchCV
 
 
 def create_regression_data(eye_ts, eye_xy, imu_ts, imu_data,
@@ -348,12 +353,12 @@ class MLP(neural_network.MLPRegressor):
             param_grid = {'alpha': self.alpha_values}
 
             self.optimize_hyperparameters = False
-            grid = grid_search.GridSearchCV(self, param_grid,
-                                            n_jobs=self.n_jobs,
-                                            iid=True,
-                                            refit=False,
-                                            cv=cv,
-                                            verbose=1)
+            grid = GridSearchCV(self, param_grid,
+                                n_jobs=self.n_jobs,
+                                iid=True,
+                                refit=False,
+                                cv=cv,
+                                verbose=1)
             grid.fit(X, y)
 
             self.alpha = grid.best_params_['alpha']
