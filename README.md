@@ -2,7 +2,7 @@
 
 3D models and data extraction/analysis code for the head-mounted camera system described in:
 
-AF Meyer, J Poort, J O'Keefe, M Sahani, and JF Linden: _An ultralight head-mounted camera system integrates detailed behavioral monitoring with multichannel electrophysiology in freely moving mice_ (submitted and biorxiv)
+AF Meyer, J Poort, J O'Keefe, M Sahani, and JF Linden: _A head-mounted camera system integrates detailed behavioral monitoring with multichannel electrophysiology in freely moving mice_, Neuron, Volume 100, p46-60, 2018. [link (open access)](https://doi.org/10.1016/j.neuron.2018.09.020)
 
 This repository contains the following:
 
