@@ -8,6 +8,8 @@
     Rectangular ROI selection
 """
 
+from __future__ import print_function
+
 import matplotlib.pyplot as plt
 
 
@@ -57,7 +59,7 @@ def selectROI(frame, verbose=False, title=None, bbox=None):
             rect.remove()
 
         if verbose:
-            print "onselect:", current_bbox
+            print("current bbox:", current_bbox)
 
     def toggle_selector(event):
 
@@ -65,7 +67,7 @@ def selectROI(frame, verbose=False, title=None, bbox=None):
             # add selected region to list
             if len(current_bbox) > 0:
                 if verbose:
-                    print "added bbox:", current_bbox
+                    print("added bbox:", current_bbox)
                 plt.close()
 
     toggle_selector.RS = RectangleSelector(ax1, onselect, drawtype='box')

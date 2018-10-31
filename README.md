@@ -1,4 +1,11 @@
+[![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![HitCount](http://hits.dwyl.io/arnefmeyer/mousecam.svg)](http://hits.dwyl.io/arnefmeyer/mousecam)
+
 # mousecam
+
+<p align="center">
+<img src="docs/images/filmstrip.png" width="90%">
+</p>
 
 3D models and data extraction/analysis code for the head-mounted camera system described in:
 
