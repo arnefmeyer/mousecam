@@ -1,10 +1,9 @@
 /*
     Mirror holder for the head-mounted camera system as described in:
 
-    AF Meyer, J Poort, J O'Keefe, M Sahani, and JF Linden: 
-    An ultralight head-mounted camera system integrates detailed behavioral 
-    monitoring with multichannel electrophysiology in freely moving mice 
-    (in revision and bioRxiv:294397)
+    AF Meyer, J Poort, J O'Keefe, M Sahani, and JF Linden: A head-mounted 
+    camera system integrates detailed behavioral monitoring with multichannel 
+    electrophysiology in freely moving mice. Neuron, Volume 100, p46-60, 2018.
 
     author: arne.f.meyer@gmail.com
     licence: GPLv3

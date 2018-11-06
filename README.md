@@ -4,7 +4,7 @@
 # mousecam
 
 <p align="center">
-<img src="docs/images/filmstrip.png" width="90%">
+<img src="docs/images/filmstrip_mouse.jpg" width="90%">
 </p>
 
 3D models and data extraction/analysis code for the head-mounted camera system described in:
@@ -19,6 +19,8 @@ This repository contains the following:
     - image registration (via fiji/imagej)
     - extraction of head orientation
 * **parts**: 3D models (openscad/stl) and building instructions for the head-mounted camera system
+
+This page is now also organized in a [website format](https://arnefmeyer.github.io/mousecam)
 
 
 ## Head-mounted camera code
