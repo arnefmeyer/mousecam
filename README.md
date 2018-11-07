@@ -3,6 +3,8 @@
 
 # mousecam
 
+(click [here](https://arnefmeyer.github.io/mousecam) for a html version)
+
 <p align="center">
 <img src="docs/images/filmstrip_mouse.jpg" width="90%">
 </p>
@@ -29,13 +31,13 @@ This repository contains the following:
 
 ## Step-by-step building instructions
 
-[Parts list](docs/parts_list.md)
+[1. Parts list](docs/parts_list.md)
 
-[Building instructions](docs/building_instructions.md)
+[2. Building instructions](docs/building_instructions.md)
 
-[Implantation](docs/implantation.md)
+[3. Implantation](docs/implantation.md)
 
-[Calibration](docs/calibration.md)
+[4. Calibration](docs/calibration.md)
 
 
 ## Software

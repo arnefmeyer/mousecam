@@ -3,8 +3,8 @@
 | **Part** | **Supplier/item** | **Weight(g)** | **Cost** | **Comment** |
 | -------- | ----------------- | ------------- | -------- | ----------- |
 Camera sensor | Adafruit 1937 | 0.51 | £33.00 | incl. suspended cable |
-Camera holder | see "Custom parts" | 0.27 | n/a |
-Mirror holder | see "Custom parts" | 0.07 | n/a |
+Camera holder | see [Custom parts](building_instructions.md) | 0.27 | n/a |
+Mirror holder | see [Custom parts](building_instructions.md) | 0.07 | n/a |
 IR mirror | Qioptiq Calflex-X | 0.15 | £4.00 | cut to 7 mm x 7 mm |
 21 G steel cannula | Coopers Needle Works | 0.04 | £0.10 | cut to 20 mm |
 IR LED | Vishay VSMB2943GX01 | 0.016 | £0.74 | |
