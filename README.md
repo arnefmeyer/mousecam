@@ -24,20 +24,33 @@ This repository contains the following:
 ## News
 
 - 04/11/18: This page is now also organized in a [website format](https://arnefmeyer.github.io/mousecam).
-- 06/11/18: Added [parts list](docs/parts_list.md) as extra page
+- 07/11/18: Added websites with step-by-step building instructions
 
 
-## Head-mounted camera code
+## Step-by-step building instructions
 
-Code (including open-ephys plugin) for controlling the camera and synchronizing video data with neural recordings is available [here](https://github.com/arnefmeyer/RPiCameraPlugin).
+[Parts list](docs/parts_list.md)
+
+[Building instructions](docs/building_instructions.md)
+
+[Implantation](docs/implantation.md)
+
+[Calibration](docs/calibration.md)
 
 
-## Measurement of head orientation/movement data
+## Software
 
-Code (including open-ephys plugin) for controlling intertia measurement unit (IMU) sensors and synchronizing movement data with neural recordings is available [here](https://github.com/arnefmeyer/IMUReaderPlugin).
+### Head-mounted camera code
+
+[Custom camera software](https://github.com/arnefmeyer/RPiCameraPlugin) for the Raspberry Pi (RPi), which also integrates with the open-ephys plugin-GUI. As this software uses [zeromq](http://zeromq.org/) (with [bindings](http://zeromq.org/bindings:_start) for many programming languages) for communication between the recording computer and the RPi, it can easily be extended/adapted to other systems.
 
 
-## Behavioral segmentation
+### Measurement of head orientation/movement data
+
+Code (including open-ephys plugin) for reading data from intertia measurement unit (IMU) sensors and synchronizing movement data with neural recordings is available [here](https://github.com/arnefmeyer/IMUReaderPlugin).
+
+
+### Behavioral segmentation
 
 A Python package for behavioral scoring (including GUI for manual annotation) can be found [here](https://github.com/arnefmeyer/BehavioralScoring).
 
@@ -53,18 +66,18 @@ If you are looking for a different variant of the design or want to contribute m
 
 ## References
 
-@Article{Meyeretal2018,
-  author    = {Meyer, Arne F. and Poort, Jasper and O’Keefe, John and Sahani, Maneesh and Linden, Jennifer F.},
-  title     = {A Head-Mounted Camera System Integrates Detailed Behavioral Monitoring with Multichannel Electrophysiology in Freely Moving Mice},
-  journal   = {Neuron},
-  year      = {2018},
-  volume    = {100},
-  number    = {1},
-  month     = oct,
-  pages     = {46--60},
-  issn      = {0896-6273},
-  doi       = {10.1016/j.neuron.2018.09.020},
-  url       = {https://doi.org/10.1016/j.neuron.2018.09.020},
-  publisher = {Elsevier},
-}
+	@Article{Meyeretal2018, 
+	  author    = {Meyer, Arne F. and Poort, Jasper and O’Keefe, John and Sahani, Maneesh and Linden, Jennifer F.}, 
+	  title     = {A Head-Mounted Camera System Integrates Detailed Behavioral Monitoring with Multichannel Electrophysiology in Freely Moving Mice}, 
+	  journal   = {Neuron}, 
+	  year      = {2018}, 
+	  volume    = {100}, 
+	  number    = {1}, 
+	  month     = oct, 
+	  pages     = {46--60}, 
+	  issn      = {0896-6273}, 
+	  doi       = {10.1016/j.neuron.2018.09.020}, 
+	  url       = {https://doi.org/10.1016/j.neuron.2018.09.020}, 
+	  publisher = {Elsevier}, 
+	} 
 

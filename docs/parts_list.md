@@ -1,5 +1,4 @@
-Parts required for building the camera system
-=============================================
+# Parts required for building the camera system
 
 | **Part** | **Supplier/item** | **Weight(g)** | **Cost** | **Comment** |
 | -------- | ----------------- | ------------- | -------- | ----------- |
@@ -13,7 +12,7 @@ Resistor (150--200) | Farnell Multicomp | 0.01 | £0.17 | package 3216 |
 2 x 36 G wire | Alpha Wire 2936 | 2 x 0.01 | £0.10 | 50 mm |
 2 x female gold pin | RS Components 481-500 | 2 x 0.05 | £0.90 | cut solder pot |
 Miniature connector | Omnetics A79007-001 | 0.09 | £50.00 | cut thru-hole tails |
-Preci-Dip connector | 852-10-008-10-001101 | 0.14 | n/a | alternative to A79007-001 |
+*Preci-Dip connector* | *852-10-008-10-001101* | *0.14* | *n/a* | *alternative to A79007-001* |
 
-Weights were measured using a calibrated micro scale (Satorius CPA225D, Germany). Prices for steel cannula, mirror tiles, and wires were estimated without taking the cost of tools (e.g., glass cutter) into account. 3D printed parts were printed using a commercially available printer (Ultimaker 2+, the Netherlands) and PLA material (colorfabb, the Netherlands). Gray rows indicate alternative parts.
+Weights were measured using a calibrated micro scale (Satorius CPA225D, Germany). Prices for steel cannula, mirror tiles, and wires were estimated without taking the cost of tools (e.g., glass cutter) into account. 3D printed parts were printed using a commercially available printer (Ultimaker 2+, the Netherlands) and PLA material (colorfabb, the Netherlands). Rows in italic indicate alternative parts.
 
