@@ -11,7 +11,7 @@
 
 3D models and data extraction/analysis code for the head-mounted camera system described in:
 
-AF Meyer, J Poort, J O'Keefe, M Sahani, and JF Linden: _A head-mounted camera system integrates detailed behavioral monitoring with multichannel electrophysiology in freely moving mice_, Neuron, Volume 100, p46-60, 2018. [link (open access)](https://doi.org/10.1016/j.neuron.2018.09.020)
+>AF Meyer, J Poort, J O'Keefe, M Sahani, and JF Linden: _A head-mounted camera system integrates detailed behavioral monitoring with multichannel electrophysiology in freely moving mice_, Neuron, Volume 100, p46-60, 2018. [link (open access)](https://doi.org/10.1016/j.neuron.2018.09.020)
 
 This repository contains the following:
 
@@ -30,6 +30,10 @@ This repository contains the following:
 
 
 ## Step-by-step building instructions
+
+<p align="center">
+<img src="docs/images/mousecam_3dparts.png" width="85%">
+</p>
 
 [1. Parts list](docs/parts_list.md)
 

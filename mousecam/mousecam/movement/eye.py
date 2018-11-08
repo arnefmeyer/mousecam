@@ -98,10 +98,8 @@ def get_linear_weights(model, n_channels=3, order='F',
     """extract linear weights for different accelerometer channels"""
 
     w = np.copy(model.get_weights())
-    m = w.shape[0]/n_channels
+    m = int(w.shape[0] / n_channels)
     W = np.reshape(w, (m, n_channels), order=order)
-#    chan_ind = np.reshape(np.arange(w.shape[0]), (m, n_channels),
-#                          order='F')
 
     C = None
     if hasattr(model, 'cov_posterior'):
