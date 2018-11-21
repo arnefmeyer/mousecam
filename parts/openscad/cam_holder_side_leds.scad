@@ -39,6 +39,11 @@ clip_dw = .5;
 led_width = 3;
 led_height = 4;
 
+// LED holder (sides)
+side_leds = true;
+side_led_arm = 5;
+side_led_dz = 5;
+
 // block for the cannula that holds the mirror
 mirrorblock_width = 3;
 mirrorblock_height = 3;
@@ -75,6 +80,24 @@ union()
     // LED holder
     translate([.5*frame_width+.5*width-.5*led_width, 0, frame_width])
         cube([led_width, frame_width, thickness+led_height]);
+
+    if (side_leds)
+    {
+        h = thickness+depth;
+        translate([-side_led_arm, 0, 0])
+        {
+            cube([side_led_arm, frame_width, h]);
+            translate([0, 0, h])
+                cube([h, frame_width, side_led_dz]);
+        }
+
+        translate([width+2*frame_width, 0, 0])
+        {
+            cube([side_led_arm, frame_width, h]);
+            translate([side_led_arm-h, 0, h])
+                cube([h, frame_width, side_led_dz]);
+        }
+    }
 
     // block for the cannular holding the mirror
     translate([-mirrorblock_width, height - mirrorblock_height+depth, 0])

@@ -30,10 +30,11 @@ holder (fit should be tight); and file side clips until camera fits in
 holder.
 
 Depending on the printer it might be useful to modify the designs such
-that minimal filing/cutting is required after printing. The source files
-(in [OpenSCAD](http://www.openscad.org/) format) are available in the
-mousecam repository in the same directory as the STL files.
+that minimal filing/cutting is required after printing. A folder with 
+source files (in [OpenSCAD](http://www.openscad.org/) format) is available 
+in the mousecam repository in the same subdirectory as the STL file folder.
 
+**Note:** A newer version of the Adafruit 1937 module is available which is a big thicker (about 3.1 mm). Updated stl files (with suffix "_new_module.stl") can be found in the [stl folder](./../parts/stl).
 
 ## 2. Assembling of the camera system
 
