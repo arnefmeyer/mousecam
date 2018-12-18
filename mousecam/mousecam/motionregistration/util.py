@@ -8,13 +8,18 @@
     some helpers
 """
 
+from __future__ import print_function
+
 import numpy as np
 import imageio
 import cv2
 
 
-def get_frames(file_path, bbox=None, num_frames=-1,
-               brightness_mask=None, offset=0, use_memmap=False):
+def get_frames(file_path,
+               bbox=None,
+               num_frames=-1,
+               brightness_mask=None,
+               offset=0):
     """read frames from video file"""
 
     frames = []
@@ -60,7 +65,7 @@ def get_frames(file_path, bbox=None, num_frames=-1,
 
             i += 1
 
-    print rect
+    print("bounding box:", rect)
     bbox = {'rect': rect,
             'x': rect[0],
             'y': rect[1],
@@ -89,4 +94,3 @@ def select_template(frames):
     index = cv2.getTrackbarPos('index', 'frames')
 
     return frames[index, :, :], index
-
