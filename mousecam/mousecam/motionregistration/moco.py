@@ -39,8 +39,11 @@ class Moco(object):
         self.temp_path = temp_path
         self.max_motion = max_motion
 
-    def run(self, frames, headless=True,
-            template=None, use_average=True,
+    def run(self, frames,
+            headless=True,
+            template=None,
+            use_average=True,
+            no_splash=True,
             verbose=True):
 
         # create temporary directory
@@ -52,7 +55,7 @@ class Moco(object):
 
         print("temp path:", temp_path)
 
-        if isinstance(frames, (np.ndarray)):
+        if isinstance(frames, np.ndarray):
             # write frames to binary file
             stack_file = op.join(temp_path, 'frames.raw')
             frames.tofile(stack_file, format='%d')
@@ -78,7 +81,9 @@ class Moco(object):
                                                             frames.shape,
                                                             template_file)
 
-        self._call_moco(macro_file, headless=headless)
+        self._call_moco(macro_file,
+                        headless=headless,
+                        no_splash=no_splash)
 
         values = np.genfromtxt(results_file, dtype=np.int,
                                skip_header=1, delimiter=',')
@@ -110,11 +115,14 @@ class Moco(object):
 
         return macro_file, results_file
 
-    def _call_moco(self, macro_file, headless=True):
+    def _call_moco(self, macro_file, headless=True, no_splash=True):
 
         cmd_list = ['fiji', '-macro', macro_file]
         if headless:
             cmd_list.append(' --headless')
+
+        if no_splash:
+            cmd_list.append(' --no-splash')
 
         try:
             cmd = ' '.join(cmd_list)
