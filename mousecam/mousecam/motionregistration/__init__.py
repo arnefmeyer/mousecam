@@ -1,3 +1,3 @@
 
-from moco import *
-from util import *
+from .moco import *
+from .util import *

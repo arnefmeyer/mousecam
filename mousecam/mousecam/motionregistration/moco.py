@@ -28,7 +28,7 @@ import cv2
 import sys
 import subprocess
 
-from util import select_template
+from .util import select_template
 
 
 class Moco(object):
