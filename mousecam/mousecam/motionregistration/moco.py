@@ -85,13 +85,20 @@ class Moco(object):
                         headless=headless,
                         no_splash=no_splash)
 
-        values = np.genfromtxt(results_file, dtype=np.int,
-                               skip_header=1, delimiter=',')
+        values = np.genfromtxt(results_file,
+                               dtype=np.int,
+                               skip_header=1,
+                               delimiter=',')
 
         if rm_path:
             shutil.rmtree(temp_path)
 
-        return values[:, 1:]
+        if values.shape[1] > 2:
+            # older fiji versions also export the frame index
+            return values[:, 1:]
+        else:
+            return values
+
 
     def create_macro_script(self, stack_file, shape, template_file):
 
