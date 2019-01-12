@@ -34,9 +34,25 @@ that minimal filing/cutting is required after printing. A folder with
 source files (in [OpenSCAD](http://www.openscad.org/) format) is available 
 in the mousecam repository in the same subdirectory as the STL file folder.
 
-**Note:** A newer version of the Adafruit 1937 module is available which is a big thicker (about 3.1 mm). Updated stl files (with suffix "_new_module.stl") can be found in the [stl folder](./../parts/stl).
+**Note:** A newer version of the Adafruit 1937 module is available which is a big thicker (about 3.1 mm). The below figure shows top and bottom views of the old an new camera modules. It seems that the main change is that some components were moved to the bottom of the module (see new module, bottom view). Updated STL files (with suffix "_new_module.stl") can be found in the [stl folder](./../parts/stl).
 
-## 2. Assembling of the camera system
+<p align="center">
+<img src="images/cam_old_new.png" width="40%">
+</p>
+
+
+## 2. Removal of the infrared filter
+
+The camera module has an IR filter which needs to be removed when using IR light illumination. The filter is attached to the back of the lens. The lens can be removed by carefully turning it counter-clockwise with small pliers or big forcepts. Removing the lens will expose the camera sensor (see below picture, left). If possible avoid getting any dirst, dust etc on the camera sensor.
+
+The IR filter is a thin round piece of glass (see below picture, middle) and can be removed by levering it off using a sharp knife (e.g., a scalpel blade) as indicated by the red arrow. It is possible to get it off in one single piece but if you break it don't worry -- just remove everything (e.g., using some air duster) and make sure the lens is clean (below picture, right).
+
+<p align="center">
+<img src="images/cam_lens.png" width="75%">
+</p>
+
+
+## 3. Assembling of the camera system
 
 Note: construction of the camera system requires some off-the-shelf
 parts. We provide example parts (supplier/item) as used in the above
@@ -46,17 +62,17 @@ paper but other parts might work as well.
 
 -   Camera and mirror holders (see custom parts above)
 
--   21 G steel cannula (e.g., Coopers Needle Works). We successfully
-    used thin-walled steel cannulas but other cannulas (e.g., a 21 G
+-   21 G steel cannula (e.g., Coopers Needle Works). We successfully
+    used thin-walled steel cannulas but other cannulas (e.g., a 21 G
     syringe needle after cutting the tip) will also work.
 
 -   Infrared (IR) mirror (e.g., Qioptiq Calflex-X)
 
 -   Small IR LED (e.g., Vishay VSMB2943GX01)
 
--   Small resistor, 150--200  (e.g., Farnell Multicomp, package 3216)
+-   Small resistor, 150--200  (e.g., Farnell Multicomp, package 3216)
 
--   2 x 30--36 AWG wire (e.g., Alpha Wire 2936); length $\approx$ 5 cm
+-   2 x 30--36 AWG wire (e.g., Alpha Wire 2936); length $\approx$ 5 cm
 
 -   Miniature connectors for connecting the camera system to the
     implant/skull (e.g., Omnetics A79007-001/A79010-001 or 8-pin
@@ -65,7 +81,7 @@ paper but other parts might work as well.
 -   optional: 2 x female gold pin (e.g., RS Components 481-500)
 
 -   Dremel (e.g. Proxxon D-54518) with cutting disc (e.g. wheel no. 409)
-    and 0.8 mm drill bit (DU68.10)
+    and 0.8 mm drill bit (DU68.10)
 
 -   glass cutter; most glass cutters should work. We successfully used
     [this one](https://www.screwfix.com/p/vitrex-6-wheel-glass-cutter/10706).
@@ -83,17 +99,17 @@ paper but other parts might work as well.
 <img src="images/building_of_custom_parts.png" width="90%">
 </p>
 
-1.  Drill hole in the camera holder with Dremel and 0.8 mm drill bit
-    (Figure 1a). Use hemostat or other pliers (not
+1.  Drill hole in the camera holder with Dremel and 0.8 mm drill bit
+    (Figure 1a). Use hemostat or other pliers (not
     shown in photo) to hold the camera holder while drilling.
 
 2.  Drill hole in the mirror holder (holding it with pliers) using
-    Dremel and 0.8 mm drill bit     (Figure 1b).
+    Dremel and 0.8 mm drill bit     (Figure 1b).
 
-3.  Cut cannula (21 G) to approx. 2 cm with cutting disc on Dremel
-    (Figure 1c). Use safety glasses and hold both
+3.  Cut cannula (21 G) to approx. 2 cm with cutting disc on Dremel
+    (Figure 1c). Use safety glasses and hold both
     ends with pliers. Bend with second pliers at one of the ends to give
-    sharp bent tip (Figure 1d). The bent tip will be fixed with
+    sharp bent tip (Figure 1d). The bent tip will be fixed with
     a drop of epoxy to the back of the camera holder later on to prevent
     the mirror holder from rotating around the axis of the cannula.
 
@@ -101,12 +117,12 @@ paper but other parts might work as well.
     until the back of the camera holder hits the bent tip of the
     cannula.
 
-5.  Bend cannula in the middle (approx. 1 cm) by about
-    approx. 60&deg; using pliers. See Figure 1e) for a camera holder 
+5.  Bend cannula in the middle (approx. 1 cm) by about
+    approx. 60&deg; using pliers. See Figure 1e) for a camera holder 
 	with mirror holder and bent cannula.
 
-6.  To cut the infrared (IR) mirror (e.g. Qioptiq Calflex-X 25 x 25 mm),
-    first mark desired size (e.g., 7 x 7 mm for a relatively large
+6.  To cut the infrared (IR) mirror (e.g. Qioptiq Calflex-X 25 x 25 mm),
+    first mark desired size (e.g., 7 x 7 mm for a relatively large
     field-of-view including eye and whiskers) with a removable marker.
     Score with glass cutter (along a thin solid object, e.g., a metal
     ruler) along one side of mirror. Break off scored line by holding
@@ -141,7 +157,7 @@ paper but other parts might work as well.
 11. Solder two thin wires (30--36 AWG) to the cathode (-) of the LED and
     the resistor. The length of the wire depends on the distance between
     the camera holder and the LED power source. For the Intan headstage
-    used in the paper about 5 cm wires were long enough. Moreover, in
+    used in the paper about 5 cm wires were long enough. Moreover, in
     order to quickly connect/disconnect the wires to/from the power
     source during experiments it might be useful to use miniature gold
     pins and sockets. Cut away the solder pots, solder the wires to the
@@ -151,7 +167,7 @@ paper but other parts might work as well.
 
 12. Fix connector (e.g., Omnetics A79007-001 after cutting away solder
     tails) using super glue to the back of the camera holder. See
-    [Figure S1](https://www.cell.com/cms/10.1016/j.neuron.2018.09.020/attachment/0d7fad46-0021-44ca-ac57-d2f0a3dff074/mmc1.pdf) 
+    [Figure S1](https://www.cell.com/cms/10.1016/j.neuron.2018.09.020/attachment/0d7fad46-0021-44ca-ac57-d2f0a3dff074/mmc1.pdf) 
 	in the [paper](https://www.cell.com/neuron/fulltext/S0896-6273(18)30822-5) 
 	for an example of a fully assembled camera system with connector.
 
