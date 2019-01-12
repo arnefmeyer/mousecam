@@ -102,8 +102,18 @@ def setup_package():
 
         metadata['configuration'] = configuration
 
-    setup(ext_modules=[get_inpaint_extension()],
-          **metadata)
+    try:
+        setup(ext_modules=[get_inpaint_extension()],
+              **metadata)
+    except:
+        print(10*"!", "Could not install inpaint cython extension.", 10*"!")
+        print(10*"-", "Reason", 10*"-")
+
+        import traceback
+        traceback.print_exc()
+
+        print(10*"!", "Installing package without inpaint extension.", 10*"!")
+        setup(**metadata)
 
 
 def build_extensions():
