@@ -28,6 +28,7 @@ This repository contains the following:
 - 04/11/18: This page is now also organized in a [website format](https://arnefmeyer.github.io/mousecam).
 - 07/11/18: Added websites with step-by-step building instructions
 - 28/11/18: The project is now on [open-ephys.org](http://www.open-ephys.org/mousecam/)
+- 12/01/19: Added intructions on [how to remove IR filter from camera module](docs/building_instructions.md)
 
 
 ## Step-by-step building instructions
