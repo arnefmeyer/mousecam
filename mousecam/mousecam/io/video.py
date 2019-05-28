@@ -71,14 +71,17 @@ def dump_video_to_memmap_file(file_path,
 
     if not op.exists(mmap_file) or overwrite:
 
-        # get parameters
-        rec_path, file_name = op.split(file_path)
-
         # open reader and get video parameters
         reader = imageio.get_reader(file_path, 'ffmpeg')
         meta = reader.get_meta_data()
-        n_frames = meta['nframes']
         w, h = meta['size']
+
+        n_frames = meta['nframes']
+        if np.isinf(n_frames):
+            # some version return inf
+            import cv2
+            cap = cv2.VideoCapture(file_path)
+            n_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
         if max_num_frames > 0:
             n_frames = min(max_num_frames, n_frames)
