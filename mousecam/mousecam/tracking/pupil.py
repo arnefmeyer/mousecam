@@ -12,13 +12,27 @@ from __future__ import print_function
 
 import numpy as np
 import itertools
-from scipy.misc import imresize
 
 from . import inpaintBCT
 from .base import AbstractTracker, TrackedEllipse, TrackerParameter
 from .base import AbstractTrackerWidget
 from .base import InvalidNumberOfObjectsException
 from ..util.opencv import cv2, cv
+
+
+def imresize(image, percent, interp='bilinear'):
+    """imresize is not available in newer scipy versions so use a wrapper function"""
+
+    try:
+        from scipy.misc import imresize
+        return imresize(image, percent, interp=interp)
+
+    except ImportError:
+        from PIL import Image
+        img = Image(image)
+        return img.resize((int(round(img.shape[0]*percent/100.)),
+                           int(round(img.shape[1]*percent/100.))),
+                          Image.BICUBIC)
 
 
 class PupilTracker(AbstractTracker):
@@ -163,7 +177,8 @@ class PupilTracker(AbstractTracker):
 
         oversample = self.oversample
         if oversample is not None and oversample > 1:
-            frame_gray = imresize(frame_gray, oversample * 100,
+            frame_gray = imresize(frame_gray,
+                                  oversample * 100,
                                   interp='cubic')
 
         frame = cv2.cvtColor(frame_gray, cv.CV_GRAY2RGB)
