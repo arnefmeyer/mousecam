@@ -35,7 +35,8 @@ def get_video_files(path, extensions=['.mp4']):
     return video_files
 
 
-def get_first_frame(file_path, grayscale=True):
+def get_first_frame(file_path,
+                    grayscale=True):
 
     import imageio
 

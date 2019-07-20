@@ -12,10 +12,16 @@ from __future__ import print_function
 
 import matplotlib.pyplot as plt
 
+from ..io.video import get_first_frame
+
 
 def selectROI(frame, verbose=False, title=None, bbox=None):
 
     from matplotlib.widgets import RectangleSelector
+    from six import string_types
+
+    if isinstance(frame, string_types):
+        frame = get_first_frame(frame)
 
     fig, (ax1, ax2) = plt.subplots(nrows=1, ncols=2)
     ax1.imshow(frame, vmin=0, vmax=255, cmap='gray')
@@ -25,7 +31,7 @@ def selectROI(frame, verbose=False, title=None, bbox=None):
     if title is not None:
         fig.suptitle(title)
 
-    current_bbox = []
+    current_bbox = [0, 0, frame.shape[1], frame.shape[0]]
 
     # show given bbox if available
     rect = None
@@ -76,18 +82,3 @@ def selectROI(frame, verbose=False, title=None, bbox=None):
     plt.show(block=True)
 
     return current_bbox
-
-
-def get_first_frame(file_path, grayscale=True):
-
-    import imageio
-    import cv2
-
-    with imageio.get_reader(file_path, 'ffmpeg') as reader:
-
-        frame = reader.get_data(0)
-
-        if grayscale:
-            frame = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
-
-    return frame
