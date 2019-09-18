@@ -14,8 +14,6 @@ from scipy import signal
 from scipy import interpolate
 import math
 
-from ..util import signal as mcs
-
 
 ISO_AZIMUTH = 45.
 ISO_ELEVATION = np.arcsin(1/np.sqrt(3)) * 180 / np.pi
@@ -34,7 +32,7 @@ def cart2sph(xyz, degrees=False):
     theta: angle between OP line and z-axis (0 <= theta <= pi)
     phi: azimuth angle in x-y-plane (0 <= phi <= 360)
 
-    this is the ISO convention also used in physics:
+    This function uses the ISO convention often used in physics:
     https://en.wikipedia.org/wiki/Spherical_coordinate_system
     http://mathworld.wolfram.com/SphericalCoordinates.html
     """
@@ -90,11 +88,15 @@ def rotation_matrix(axis, theta):
                      [2*(bd+ac), 2*(cd-ab), aa+dd-bb-cc]])
 
 
-def compute_pitch_and_roll(xyz, fs, f_cutoff=2., filt_type='lowpass',
-                           method='filtfilt', gravity=False):
+def compute_pitch_and_roll(xyz, fs,
+                           f_cutoff=2.,
+                           filt_type='lowpass',
+                           method='filtfilt',
+                           gravity=False):
 
     if f_cutoff is not None:
         # extract gravity component
+        from ..util import signal as mcs
         xyz_lowpass = mcs.filter_data(xyz, fs,
                                       f_upper=f_cutoff,
                                       filt_type=filt_type,
@@ -117,8 +119,12 @@ def compute_pitch_and_roll(xyz, fs, f_cutoff=2., filt_type='lowpass',
     return pitch, roll
 
 
-def estimate_density_sphere(xyz, step_theta=5, step_phi=5, method='hist',
-                            oversample=1, smoothing=0):
+def estimate_density_sphere(xyz,
+                            step_theta=5,
+                            step_phi=5,
+                            method='hist',
+                            oversample=1,
+                            smoothing=0):
 
     theta_grid = np.arange(0, 180+.5, step_theta)
     phi_grid = np.arange(0, 360+.5, step_phi) - 180

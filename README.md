@@ -25,6 +25,7 @@ This repository contains the following:
 
 ## News
 
+- 21/11/2018: Add design files for [new camera module](https://github.com/arnefmeyer/mousecam/tree/master/parts)
 - 04/11/18: This page is now also organized in a [website format](https://arnefmeyer.github.io/mousecam).
 - 07/11/18: Added websites with step-by-step building instructions
 - 28/11/18: The project is now on [open-ephys.org](http://www.open-ephys.org/mousecam/)
