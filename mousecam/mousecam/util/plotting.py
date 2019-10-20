@@ -50,9 +50,17 @@ for k in NICE_COLORS:
     NICE_COLORS[k] = np.asarray(NICE_COLORS[k])/255.
 
 
-def set_font_axes(ax, add_size=0, size_ticks=6, size_labels=8,
-                  size_text=8, size_title=8, family='Arial'):
+def set_font_axes(ax,
+                  add_size=0,
+                  size_ticks=6,
+                  size_labels=8,
+                  size_text=8,
+                  size_title=8,
+                  family='Arial'):
+    # set font family and size for given axes
 
+    # title
+    ax.title.set_fontname(family)
     if size_title is not None:
         ax.title.set_fontsize(size_title + add_size)
 
@@ -61,35 +69,45 @@ def set_font_axes(ax, add_size=0, size_ticks=6, size_labels=8,
                        which='major',
                        labelsize=size_ticks + add_size)
 
+    # labels
+    ax.xaxis.label.set_fontname(family)
+    ax.yaxis.label.set_fontname(family)
+    if hasattr(ax, 'zaxis'):
+        ax.zaxis.label.set_fontname(family)
+
     if size_labels is not None:
 
         ax.xaxis.label.set_fontsize(size_labels + add_size)
-        ax.xaxis.label.set_fontname(family)
-
         ax.yaxis.label.set_fontsize(size_labels + add_size)
-        ax.yaxis.label.set_fontname(family)
-
         if hasattr(ax, 'zaxis'):
             ax.zaxis.label.set_fontsize(size_labels + add_size)
-            ax.zaxis.label.set_fontname(family)
 
-    if size_text is not None:
-        for at in ax.texts:
+    for at in ax.texts:
+        at.set_fontname(family)
+        if size_text is not None:
             at.set_fontsize(size_text + add_size)
-            at.set_fontname(family)
 
 
-def adjust_axes(ax, tick_length=True, tick_direction=True,
-                spine_width=0.5, pad=-2):
+def adjust_axes(ax,
+                tick_length=2,
+                tick_direction='out',
+                spine_width=0.5,
+                pad=2):
+    # set axes ticks, label padding, and spine width
 
-    if tick_length:
-        ax.tick_params(axis='both', which='major', length=2)
+    if tick_length is not None:
+        ax.tick_params(axis='both',
+                       which='major',
+                       length=tick_length)
 
-    if tick_direction:
-        ax.tick_params(axis='both', which='both', direction='out')
+    ax.tick_params(axis='both',
+                   which='both',
+                   direction=tick_direction)
 
     if pad is not None:
-        ax.tick_params(axis='both', which='both', pad=pad)
+        ax.tick_params(axis='both',
+                       which='both',
+                       pad=pad)
 
     for s in ax.spines:
         spine = ax.spines[s]
