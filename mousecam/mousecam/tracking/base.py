@@ -253,7 +253,8 @@ class AbstractTracker(object):
                                               output=None,
                                               bbox=bbox,
                                               max_num_frames=max_num_frames,
-                                              timestamps=timestamps)
+                                              timestamps=timestamps,
+                                              overwrite=overwrite)
         self.bbox = self.mmap['bbox']
 
         self._open_memmap_file()
@@ -628,7 +629,8 @@ class AbstractTrackerWidget(qw.QWidget):
                  output=None,
                  oversample=None,
                  frame_rate=10,
-                 suffix='_tracked_data'):
+                 suffix='_tracked_data',
+                 **kwargs):
 
         qw.QWidget.__init__(self)
 
@@ -645,12 +647,18 @@ class AbstractTrackerWidget(qw.QWidget):
         self.thread = None
 
         # the pupil tracker object is doing the actual work
+        mask = None
         if bbox is None:
             frame = get_first_frame(file_path)
             bbox, mask = select_ROI_and_mask(frame)
 
-        self.tracker = self.create_tracker(file_path, bbox=bbox,
-                                           oversample=oversample)
+        self.tracker = self.create_tracker(file_path,
+                                           max_num_frames=max_num_frames,
+                                           bbox=bbox,
+                                           mask=mask,
+                                           oversample=oversample,
+                                           overwrite=overwrite,
+                                           **kwargs)
 
         if param_file is not None and op.exists(param_file):
             self.tracker.load_parameters(param_file)
