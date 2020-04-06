@@ -526,15 +526,24 @@ def Arrow3D(x1, y1, z1, x2, y2, z2, color=(.5, .5, .5),
 # cartoon mouse head
 # -----------------------------------------------------------------------------
 
-def plot_mouse_head(show_now=False, size=(500, 500), ax=None,
-                    theta=0, phi=0, pitch=None, roll=None,
+def plot_mouse_head(show_now=False,
+                    size=(500, 500),
+                    ax=None,
+                    theta=0,
+                    phi=0,
+                    pitch=None,
+                    roll=None,
                     isometric=True,
-                    azimuth=None, elevation=None, zoom=1.5,
-                    gravity_axes=True, head_axes=True,
+                    azimuth=None,
+                    elevation=None,
+                    zoom=1.5,
                     close_figure=False,
                     color_mouse=(.5, .5, .5),
+                    show_pupils=True,
+                    head_axis=True,
                     color_head_axes=(.25, .95, .8),
-                    color_gravity_axes=(.75, .75, .75),
+                    gravity_axis=True,
+                    color_gravity_axis = (.75, .75, .75),
                     backend='visvis',
                     light_ambient=.6,
                     light_specular=.5,
@@ -581,11 +590,15 @@ def plot_mouse_head(show_now=False, size=(500, 500), ax=None,
         hsEYE1 = mlab.mesh((x*.8)-1.2, (y*.8)-1.6, c+(z*.8)+3.5, color=color)
         hsEYE2 = mlab.mesh((x*.8)+1.2, (y*.8)-1.6, c+(z*.8)+3.5, color=color)
 
-        # pupils
-        hsPUP1 = mlab.mesh((x*.3)-1.476, (y*.3)-1.98, c+(z*.3)+4.147,
-                           color=(0.1, 0.1, 0.1))
-        hsPUP2 = mlab.mesh((x*.3)+1.476, (y*.3)-1.98, c+(z*.3)+4.147,
-                           color=(0.1, 0.1, 0.1))
+        if show_pupils:
+            # pupils
+            hsPUP1 = mlab.mesh((x*.3)-1.476, (y*.3)-1.98, c+(z*.3)+4.147,
+                               color=(0.1, 0.1, 0.1))
+            hsPUP2 = mlab.mesh((x*.3)+1.476, (y*.3)-1.98, c+(z*.3)+4.147,
+                               color=(0.1, 0.1, 0.1))
+        else:
+            hsPUP1 = None
+            hsPUP2 = None
 
         # whiskers
         Px = np.array([-1.154, -1.214, -1.154, +1.154, +1.214, +1.154])
@@ -610,7 +623,7 @@ def plot_mouse_head(show_now=False, size=(500, 500), ax=None,
 
             x = np.append(Px[W], Px[W]+XSIGN*WL[0, :])
             y = np.append(Py[W], Py[W]+YSIGN*WL[1, :])
-            z = np.append(Pz[W], Pz[W])
+            # z = np.append(Pz[W], Pz[W])
 
             tck, u = interpolate.splprep([x, y], k=2)
             xi, yi = interpolate.splev(np.linspace(0, 1, 100),
@@ -626,15 +639,14 @@ def plot_mouse_head(show_now=False, size=(500, 500), ax=None,
         angle_z = -90
 
         for actor in [head, nose, hsE1, hsE2, hsEYE1, hsEYE2, hsPUP1, hsPUP2]:
-            actor.actor.actor.rotate_z(angle_z)
-            actor.actor.actor.rotate_x(angle_x)
-            actor.actor.actor.rotate_y(angle_y)
 
-    #        actor.actor.actor.rotate_y(phi)
-    #        actor.actor.actor.rotate_z(theta)
+            if actor is not None:
+                actor.actor.actor.rotate_z(angle_z)
+                actor.actor.actor.rotate_x(angle_x)
+                actor.actor.actor.rotate_y(angle_y)
 
-            actor.actor.actor.rotate_x(theta)
-            actor.actor.actor.rotate_y(phi)
+                actor.actor.actor.rotate_x(theta)
+                actor.actor.actor.rotate_y(phi)
 
         for i in range(0, len(hsWHISK)):
             hsWHISK[i].actor.actor.rotate_z(angle_z)
@@ -644,7 +656,7 @@ def plot_mouse_head(show_now=False, size=(500, 500), ax=None,
             hsWHISK[i].actor.actor.rotate_x(theta)
             hsWHISK[i].actor.actor.rotate_y(phi)
 
-        if head_axes:
+        if head_axis:
             # axes of head-centered coordinate system
             visual.set_viewer(fig)
 
@@ -660,7 +672,7 @@ def plot_mouse_head(show_now=False, size=(500, 500), ax=None,
                 arr.actor.rotate_x(theta)
                 arr.actor.rotate_y(phi)
 
-        if gravity_axes:
+        if gravity_axis:
 
             # gravitational coordinate system
             visual.set_viewer(fig)
@@ -731,11 +743,12 @@ def plot_mouse_head(show_now=False, size=(500, 500), ax=None,
         eye2 = vv.surf(c+(z*.8)+3.5, (x*.8)+1.2, -1*((y*.8)-1.6))
         [setattr(eye, 'faceColor', color) for eye in [eye1, eye2]]
 
-        # pupils
-        color = (.1, .1, .1)
-        pupil1 = vv.surf(c+(z*.3)+4.147-.5, (x*.3)-1.476-.2, -1*((y*.3)-1.98))
-        pupil2 = vv.surf(c+(z*.3)+4.147-.5, (x*.3)+1.476+.2, -1*((y*.3)-1.98))
-        [setattr(pupil, 'faceColor', color) for pupil in [pupil1, pupil2]]
+        if show_pupils:
+            # pupils
+            color = (.1, .1, .1)
+            pupil1 = vv.surf(c+(z*.3)+4.147-.5, (x*.3)-1.476-.2, -1*((y*.3)-1.98))
+            pupil2 = vv.surf(c+(z*.3)+4.147-.5, (x*.3)+1.476+.2, -1*((y*.3)-1.98))
+            [setattr(pupil, 'faceColor', color) for pupil in [pupil1, pupil2]]
 
         # whiskers
         Px = np.array([-1.154, -1.214, -1.154, +1.154, +1.214, +1.154])
@@ -770,7 +783,7 @@ def plot_mouse_head(show_now=False, size=(500, 500), ax=None,
             whisker = vv.plot(zi, xi, -1*yi, lw=2, lc=(0, 0, 0))
             whiskers.append(whisker)
 
-        if head_axes:
+        if head_axis:
             # show vector indicating orientation of head
             length = 1
             shrink = .825
@@ -812,18 +825,17 @@ def plot_mouse_head(show_now=False, size=(500, 500), ax=None,
             cone.do_not_rotate = True
             cone.do_not_scale = True
 
-        if gravity_axes:
+        if gravity_axis:
             # show vector indicating (negative) orientation of gravity
             length = 1
             shrink = .825
-            color = (.75, .75, .75)
 
             direction = np.array([0, 0, 1])
             cyl = vv.solidCylinder(translation=(0, 0, .25),
                                    scaling=(.05, .05, shrink*length),
                                    direction=tuple(direction),
                                    axesAdjust=False, axes=ax)
-            cyl.faceColor = color
+            cyl.faceColor = color_gravity_axis
             cyl.do_not_rotate = True
             cyl.do_not_scale = True
 
@@ -832,7 +844,7 @@ def plot_mouse_head(show_now=False, size=(500, 500), ax=None,
                                 scaling=(.1, .1, .2),
                                 direction=tuple(direction),
                                 axesAdjust=False, axes=ax)
-            cone.faceColor = color
+            cone.faceColor = color_gravity_axis
             cone.do_not_rotate = True
             cone.do_not_scale = True
 
