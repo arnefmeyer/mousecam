@@ -211,9 +211,13 @@ def estimate_density_sphere(xyz,
     return xyz_centers, H.reshape(T.shape), theta_grid, phi_grid
 
 
-def plot_density_sphere(xyz_centers, H, ax=None, method='hist',
-                        azimuth=None, elevation=None, backend='visvis',
-                        oversample=1, smoothing=None, zoom=1.7,
+def plot_density_sphere(xyz_centers, H,
+                        ax=None,
+                        azimuth=None,
+                        elevation=None,
+                        backend='visvis',
+                        smoothing=None,
+                        zoom=1.7,
                         cmap='jet',
                         scaling='log',
                         log_offset=-.1,
@@ -334,8 +338,11 @@ def plot_density_sphere(xyz_centers, H, ax=None, method='hist',
 
         app = vv.use()
 
-        fig = vv.figure()
-        ax = vv.subplot(111)
+        if ax is None:
+            fig = vv.figure()
+            ax = vv.subplot(111)
+        else:
+            fig = ax.GetFigure()
 
         ax.axis.visible = 0
         ax.axis.xLabel = 'x'
@@ -540,6 +547,7 @@ def plot_mouse_head(show_now=False,
                     close_figure=False,
                     color_mouse=(.5, .5, .5),
                     show_pupils=True,
+                    whisker_linewidth=2,
                     head_axis=True,
                     color_head_axes=(.25, .95, .8),
                     gravity_axis=True,
@@ -631,7 +639,7 @@ def plot_mouse_head(show_now=False,
 
             zi = np.ones(np.size(yi))*Pz[W]
             hsWHISK.append(mlab.plot3d(xi, yi, zi, color=(0, 0, 0),
-                                       line_width=2))
+                                       line_width=whisker_linewidth))
 
         # rotate all objects
         angle_x = -90
@@ -780,7 +788,9 @@ def plot_mouse_head(show_now=False,
                                        tck, der=0)
 
             zi = np.ones(np.size(yi))*Pz[W]
-            whisker = vv.plot(zi, xi, -1*yi, lw=2, lc=(0, 0, 0))
+            whisker = vv.plot(zi, xi, -1*yi,
+                              lw=whisker_linewidth,
+                              lc=(0, 0, 0))
             whiskers.append(whisker)
 
         if head_axis:
