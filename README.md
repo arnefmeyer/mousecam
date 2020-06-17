@@ -25,6 +25,7 @@ This repository contains the following:
 
 ## News
 
+- 08/06/2020: Paper on head and eye movements in freely moving mice published in [Current Biology](https://www.cell.com/current-biology/fulltext/S0960-9822(20)30556-X)
 - 20/02/2020: New preprint using the mousecam on [bioRxiv](https://biorxiv.org/cgi/content/short/2020.02.20.957712v1)
 - 21/11/2018: Add design files for [new camera module](https://github.com/arnefmeyer/mousecam/tree/master/parts)
 - 04/11/18: This page is now also organized in a [website format](https://arnefmeyer.github.io/mousecam).
@@ -77,18 +78,35 @@ If you are looking for a different variant of the design or want to contribute m
 
 ## References
 
-	@Article{Meyeretal2018, 
-	  author    = {Meyer, Arne F. and Poort, Jasper and O’Keefe, John and Sahani, Maneesh and Linden, Jennifer F.}, 
-	  title     = {A Head-Mounted Camera System Integrates Detailed Behavioral Monitoring with Multichannel Electrophysiology in Freely Moving Mice}, 
-	  journal   = {Neuron}, 
-	  year      = {2018}, 
-	  volume    = {100}, 
-	  number    = {1}, 
-	  month     = oct, 
-	  pages     = {46--60}, 
-	  issn      = {0896-6273}, 
-	  doi       = {10.1016/j.neuron.2018.09.020}, 
-	  url       = {https://doi.org/10.1016/j.neuron.2018.09.020}, 
-	  publisher = {Elsevier}, 
-	} 
+```
+@Article{Meyer2018,
+  author    = {Meyer, Arne F. and Poort, Jasper and O’Keefe, John and Sahani, Maneesh and Linden, Jennifer F.},
+  title     = {A Head-Mounted Camera System Integrates Detailed Behavioral Monitoring with Multichannel Electrophysiology in Freely Moving Mice},
+  journal   = {Neuron},
+  year      = {2018},
+  volume    = {100},
+  number    = {1},
+  month     = oct,
+  pages     = {46--60},
+  issn      = {0896-6273},
+  doi       = {10.1016/j.neuron.2018.09.020},
+  url       = {https://doi.org/10.1016/j.neuron.2018.09.020},
+  publisher = {Elsevier},
+}
 
+@Article{Meyer2020,
+  author    = {Meyer, Arne F. and O'Keefe, John and Poort, Jasper},
+  title     = {Two Distinct Types of Eye-Head Coupling in Freely Moving Mice},
+  doi       = {10.1016/j.cub.2020.04.042},
+  issn      = {0960-9822},
+  number    = {11},
+  pages     = {2116--2130},
+  url       = {https://doi.org/10.1016/j.cub.2020.04.042},
+  volume    = {30},
+  comment   = {doi: 10.1016/j.cub.2020.04.042},
+  journal   = {Current Biology},
+  month     = jun,
+  publisher = {Elsevier},
+  year      = {2020},
+}
+```
